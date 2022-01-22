@@ -1,11 +1,10 @@
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import { Board } from './types';
 
 const App = () => {
-    let a = 4;
-    useEffect(() =>{
+    useEffect(() => {
         console.log("Starting compute");
         // console.log(compareBoards(start, end));
         // compute(start, start, 0);
@@ -24,6 +23,10 @@ const App = () => {
         [2, null, 6],
         [9, 7, 8]
     ]
+
+    useEffect(() => {
+        compareBoards(start, end);
+    })
 
     // const compute = (board: Board, goal: Board, steps: number) => {
     //     console.log("Call");
