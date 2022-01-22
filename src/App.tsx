@@ -4,9 +4,10 @@ import './App.css';
 import { Board } from './types';
 
 const App = () => {
+    let a = 4;
     useEffect(() =>{
         console.log("Starting compute");
-        console.log(compareBoards(start, end));
+        // console.log(compareBoards(start, end));
         // compute(start, start, 0);
     });
 
