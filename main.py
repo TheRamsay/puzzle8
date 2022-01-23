@@ -9,29 +9,31 @@ start = Board([
     [9, 2, 5]
 ])
 
+
 end = Board([
-    [1, 4, 3],
-    [None, 2, 7],
-    [6, 9, 5]
+    [1, None, 3],
+    [6, 4, 7],
+    [9, 2, 5]
 ])
 
+# end = Board([
+#     [1, 4, 3],
+#     [None, 2, 7],
+#     [6, 9, 5]
+# ])
 
 def solve(board: Board, goal: Board, steps: int, visited: set):
     q: deque[Board] = deque()
     q.appendleft(board)
     visited = set()
-    results = []
+    prev = {}
 
     while q:
         b = q.pop()
-        if b in visited:
-            continue
-        visited.add(b)
-        print(b)
 
-        if b == goal:
+        # if b == goal:
             # print(b)
-            return steps
+            # return prev
 
         x, y = b.find_space()
         for (ox, oy) in b.get_neighbours(x, y):
@@ -42,14 +44,25 @@ def solve(board: Board, goal: Board, steps: int, visited: set):
             new_board = b.clone()
             new_board.set_value(x, y, b.get_value(ox, oy))
             new_board.set_value(ox, oy, None)
+
+            if new_board in visited:
+                continue
+
+            visited.add(new_board)
+            prev[new_board] = board
             q.appendleft(new_board)
 
         steps += 1
 
+    return prev
 
 
+def print_path(history: List[Board]):
+    print(len(history))
+    # for board in history:
+    #     print(board)
 
 # program se nevraci, zacykli se
 # program funguje jen na posunuti o jedno
 
-print(solve(start, end, 0, set()))
+print_path(solve(start, end, 0, set()))
