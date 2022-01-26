@@ -1,12 +1,14 @@
-import {Board} from "./types";
+import { Board } from "./types";
 
 export class Node {
     board: Board;
     parent: Node | null;
+    cost: number;
 
     constructor(start: Board, parent: Node | null) {
         this.board = start;
         this.parent = parent;
+        this.cost = 0;
     }
 
     getChildren(x: number, y: number): Array<[number, number]> {
@@ -29,15 +31,20 @@ export class Node {
     }
 
     findEmptyCell(): [number, number] {
+        let res = null;
         this.board.forEach((row, y) => {
             row.forEach((val, x) => {
                 if (val === 0) {
-                    return [x, y];
+                    res = [x, y];
                 }
             })
         })
 
-        return [-1, -1];
+        if (res) {
+            return res;
+        }
+
+        throw new Error("Empty cell not found.");
     }
 
     getValue(x: number, y: number): number {
@@ -51,6 +58,7 @@ export class Node {
 
     setValue(x: number, y: number, val: number) {
         this.board[y][x] = val;
+
     }
 
     isSame(other: Node): boolean {
@@ -69,10 +77,16 @@ export class Node {
         return new Node(newBoard, this);
     }
 
+    getManhattanDistance(x: number, y: number): number {
+        const [x, y] = this.findEmptyCell();
+
+
+    }
+
     display() {
-        this.board.forEach((row, y) => {
+        this.board.forEach((row) => {
             let temp = ""
-            row.forEach((val, x) => {
+            row.forEach((val) => {
                 temp += `${val} `;
             });
             console.log(temp);

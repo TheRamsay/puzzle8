@@ -1,6 +1,7 @@
-import {Node} from "./Node";
 
-export class BFSSolver {
+import { Node } from "./Node";
+
+export class AStartSolver {
 
     start: Node;
     end: Node;
@@ -42,5 +43,14 @@ export class BFSSolver {
         }
 
         return [null, -1];
+    }
+
+    printPath(end: Node) {
+        let node = end;
+        while (node.parent !== null) {
+            console.log(JSON.stringify(node.board));
+            node = node.parent;
+        }
+        console.log(JSON.stringify(node.board));
     }
 }
