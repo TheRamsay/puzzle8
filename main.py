@@ -1,20 +1,11 @@
 from time import sleep
 from typing import List, Tuple
-from board import Board
+from node import Node
 from collections import deque
 
-start = Board([
-    [1, 4, 3],
-    [6, None, 7],
-    [9, 2, 5]
-])
+start= Node("123405678", None)
 
-
-end = Board([
-    [1, None, 3],
-    [6, 4, 7],
-    [9, 2, 5]
-])
+end = Node("123456780", None)
 
 # end = Board([
 #     [1, 4, 3],
@@ -22,18 +13,17 @@ end = Board([
 #     [6, 9, 5]
 # ])
 
-def solve(board: Board, goal: Board, steps: int, visited: set):
-    q: deque[Board] = deque()
-    q.appendleft(board)
+def solve(start: Node, goal: Node, steps: int, visited: set):
+    q: deque[Node] = deque()
+    q.appendleft(start)
     visited = set()
-    prev = {}
 
     while q:
         b = q.pop()
 
-        # if b == goal:
-            # print(b)
-            # return prev
+        if b == goal:
+            print("JAJAJJA")
+            return b, len(visited)
 
         x, y = b.find_space()
         for (ox, oy) in b.get_neighbours(x, y):
@@ -41,28 +31,43 @@ def solve(board: Board, goal: Board, steps: int, visited: set):
             if ox < 0 or oy < 0 or ox >= len(b.get_board()[0]) or oy > len(b.get_board()):
                 continue
 
-            new_board = b.clone()
+            new_board = b.make_child()
             new_board.set_value(x, y, b.get_value(ox, oy))
-            new_board.set_value(ox, oy, None)
+            new_board.set_value(ox, oy, 0)
 
             if new_board in visited:
                 continue
 
             visited.add(new_board)
-            prev[new_board] = board
             q.appendleft(new_board)
 
         steps += 1
 
-    return prev
+    return None, 0
 
 
-def print_path(history: List[Board]):
-    print(len(history))
-    # for board in history:
-    #     print(board)
+def print_path(history: List[Node]):
+    print(history)
+    for node in history:
+        print(node)
 
 # program se nevraci, zacykli se
 # program funguje jen na posunuti o jedno
+end_node, visited = solve(start, end, 0, set())
+i = 0
+path = []
+while True:
+    path.append(end_node)
+    if end_node.parent is not None:
+        end_node = end_node.parent
+        i += 1
+    else:
+        break
 
-print_path(solve(start, end, 0, set()))
+for state in reversed(path):
+    print(state)
+
+print("Path length:", i)
+print("Visited:", visited)
+# print_path(path)
+

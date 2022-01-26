@@ -1,31 +1,27 @@
-import React, { useEffect } from 'react';
+import React, {useEffect} from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { Board } from './types';
+import {Board} from './types';
+import {BFSSolver} from "./Solver";
+import {Node} from "./Node";
 
 const App = () => {
     useEffect(() => {
-        console.log("Starting compute");
-        // console.log(compareBoards(start, end));
-        // compute(start, start, 0);
-    });
+        const start = new Node([
+            [1, 2, 3],
+            [4, 5, 6],
+            [7, 0, 8]
+        ], null);
 
-    const start = [
-        [0, 1, 3],
-        [2, null, 6],
-        [9, 7, 8]
-    ]
-    const width = start[0].length;
-    const height = start.length;
-
-    const end = [
-        [0, 1, 3],
-        [2, null, 6],
-        [9, 7, 8]
-    ]
-
-    useEffect(() => {
-        compareBoards(start, end);
+        const end = new Node([
+            [1, 2, 3],
+            [4, 5, 6],
+            [7, 8, 0]
+        ], null);
+        const solver = new BFSSolver(start, end);
+        const [node, steps] = solver.solve();
+        console.log(node);
+        console.log(steps);
     })
 
     // const compute = (board: Board, goal: Board, steps: number) => {
