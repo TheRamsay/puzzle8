@@ -1,14 +1,10 @@
-
 import { Node } from "./Node";
+import Solver from "./Solver";
 
-export class AStartSolver {
-
-    start: Node;
-    end: Node;
+export default class BFSSolver extends Solver {
 
     constructor(start: Node, end: Node) {
-        this.start = start;
-        this.end = end;
+        super(start, end);
     }
 
     solve(): [Node | null, number] {
@@ -43,14 +39,5 @@ export class AStartSolver {
         }
 
         return [null, -1];
-    }
-
-    printPath(end: Node) {
-        let node = end;
-        while (node.parent !== null) {
-            console.log(JSON.stringify(node.board));
-            node = node.parent;
-        }
-        console.log(JSON.stringify(node.board));
     }
 }

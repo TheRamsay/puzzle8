@@ -1,14 +1,16 @@
-import { Board } from "./types";
+import {BoardArray} from "../types";
 
 export class Node {
-    board: Board;
+    board: BoardArray;
     parent: Node | null;
     cost: number;
+    depth: number
 
-    constructor(start: Board, parent: Node | null) {
+    constructor(start: BoardArray, parent: Node | null, depth: number) {
         this.board = start;
         this.parent = parent;
         this.cost = 0;
+        this.depth = depth;
     }
 
     getChildren(x: number, y: number): Array<[number, number]> {
@@ -74,13 +76,19 @@ export class Node {
             return arr.slice();
         });
 
-        return new Node(newBoard, this);
+        return new Node(newBoard, this, this.depth++);
     }
 
     getManhattanDistance(x: number, y: number): number {
-        const [x, y] = this.findEmptyCell();
+        const [targetX, targetY] = this.findEmptyCell();
+        return Math.abs(targetX - x) + Math.abs(targetY - y);
+    }
 
-
+    calculateCost(goal: Node) {
+        const h = this.getManhattanDistance(...goal.findEmptyCell());
+        const g = this.depth;
+        this.cost = g + h
+        return this.cost;
     }
 
     display() {

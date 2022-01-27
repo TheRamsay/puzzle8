@@ -1,1 +1,1 @@
-export type Board = Array<Array<number | null>>;
+export type BoardArray = Array<Array<number | null>>;
