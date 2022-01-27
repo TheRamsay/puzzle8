@@ -74,7 +74,7 @@ export default class Node {
             return arr.slice();
         });
 
-        return new Node(newBoard, this, this.depth++);
+        return new Node(newBoard, this, this.depth + 1);
     }
 
     getManhattanDistance(x: number, y: number): number {
@@ -85,6 +85,7 @@ export default class Node {
     getCost(goal: Node) {
         const h = this.getManhattanDistance(...goal.findEmptyCell());
         const g = this.depth;
+        console.log(`g: ${g} h: ${h}`)
         return g + h;
     }
 

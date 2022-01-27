@@ -3,10 +3,11 @@ from typing import List, Tuple
 
 class Node:
 
-    def __init__(self, start, parent: "Node") -> None:
+    def __init__(self, start, parent: "Node", depth) -> None:
 
-        self._board = self.str_to_arr(start)
+        self._board = start
         self.parent = parent
+        self.depth = depth
 
     def get_neighbours(self, x, y) -> List[Tuple[int, int]]:
         offsets = [(1, 0), (-1, 0), (0, 1), (0, -1)]
@@ -54,7 +55,7 @@ class Node:
         return self._board
 
     def __eq__(self, other: "Node"):
-        return self.__hash__() == other.__hash__()
+        return hash(self) == hash(other)
 
     def __ne__(self, other: "Node"):
         return not (self == other)
@@ -71,7 +72,7 @@ class Node:
 
             new_board.append(temp)
 
-        return Node(new_board, self)
+        return Node(new_board, self, self.depth + 1)
 
     def __str__(self):
         output = ""
@@ -81,3 +82,21 @@ class Node:
             output += "\n"
 
         return output
+
+
+    def get_manhattan_distance(self, x, y) -> int:
+        target_x, target_y = self.find_space()
+        return abs(target_x - x) + (target_y - y)
+
+        # temp = 0
+        # for i in range(0, 3):
+        #     for j in range(0, 3):
+        #         if self._board[i][j] != goal._board[i][j] and self._board[i][j] != '0':
+        #             temp += 1
+        # return temp
+
+    def get_cost(self, goal: "Node") -> int:
+        h = self.get_manhattan_distance(*goal.find_space())
+        g = self.depth
+        return g + h
+

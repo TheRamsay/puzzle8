@@ -14,9 +14,12 @@ export default class BFSSolver extends Solver {
 
         while (queue.length !== 0) {
             const node = queue.shift();
+
             if (!node) {
                 continue;
             }
+
+            visited.add(node.toString());
 
             if (node.isSame(this.end)) {
                 return [node, visited.size];
@@ -32,7 +35,6 @@ export default class BFSSolver extends Solver {
                     return;
                 }
 
-                visited.add(newNode.toString());
                 queue.push(newNode);
             })
 

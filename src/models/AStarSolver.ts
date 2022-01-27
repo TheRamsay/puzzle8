@@ -14,10 +14,12 @@ export default class AStartSolver extends Solver {
 
         while (queue.length !== 0) {
             const node = this.getLowestCost(queue);
-            queue = this.removeFromOpenSet(node, queue);
-            console.log(queue);
+            // queue = this.removeFromOpenSet(node, queue);
+            console.log(`Picking from open set: ${queue}`);
+            console.log(`Node with lowest cost: ${node} \n cost: ${node.getCost(this.end)}`)
 
             if (node.isSame(this.end)) {
+                console.log("Found goal, exiting")
                 return [node, closed.size];
             }
 
@@ -32,9 +34,11 @@ export default class AStartSolver extends Solver {
                 }
 
                 queue.push(newNode);
+                console.log(`Pushing new node: ${newNode}`);
             })
 
             closed.add(node.toString());
+            this.removeFromOpenSet(node, queue);
 
         }
 
