@@ -1,10 +1,10 @@
-import {Node} from "./Node";
+import Node from "./Node";
 import Solver from "./Solver";
 
 export default class AStartSolver extends Solver {
 
     constructor(start: Node, end: Node) {
-        super(start ,end);
+        super(start, end);
     }
 
     solve(): [Node | null, number] {
@@ -15,6 +15,7 @@ export default class AStartSolver extends Solver {
         while (queue.length !== 0) {
             const node = this.getLowestCost(queue);
             queue = this.removeFromOpenSet(node, queue);
+            console.log(queue);
 
             if (node.isSame(this.end)) {
                 return [node, closed.size];
@@ -30,9 +31,10 @@ export default class AStartSolver extends Solver {
                     return;
                 }
 
-                closed.add(newNode.toString());
                 queue.push(newNode);
             })
+
+            closed.add(node.toString());
 
         }
 
@@ -46,7 +48,7 @@ export default class AStartSolver extends Solver {
             if (lowest === null) {
                 lowest = element;
             }
-            if (element.calculateCost(this.end) < lowest.cost) {
+            if (element.getCost(this.end) < lowest.getCost(this.end)) {
                 lowest = element;
             }
         })

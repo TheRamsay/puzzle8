@@ -1,4 +1,4 @@
-import { Node } from "./Node";
+import Node from "./Node";
 
 export default abstract class AStartSolver {
 
@@ -14,7 +14,7 @@ export default abstract class AStartSolver {
 
     printPath(end: Node) {
         let node = end;
-        let count = 1;
+        let count = 0;
         while (node.parent !== null) {
             console.log(JSON.stringify(node.board));
             node = node.parent;

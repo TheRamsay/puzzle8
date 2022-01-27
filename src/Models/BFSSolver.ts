@@ -1,4 +1,4 @@
-import { Node } from "./Node";
+import Node from "./Node";
 import Solver from "./Solver";
 
 export default class BFSSolver extends Solver {
