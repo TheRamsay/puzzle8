@@ -24,10 +24,10 @@ class Node:
 
         return res
 
-    def find_space(self) -> Tuple[int, int]:
+    def find(self, value: int) -> Tuple[int, int]:
         for (y, row) in enumerate(self._board):
             for (x, val) in enumerate(row):
-                if val == 0:
+                if val == value:
                     return (x, y)
 
         return (-1, -1)
@@ -83,20 +83,21 @@ class Node:
 
         return output
 
+    def __repr__(self) -> str:
+        return "".join([str(val) for row in self._board for val in row])
 
-    def get_manhattan_distance(self, x, y) -> int:
-        target_x, target_y = self.find_space()
-        return abs(target_x - x) + (target_y - y)
 
-        # temp = 0
-        # for i in range(0, 3):
-        #     for j in range(0, 3):
-        #         if self._board[i][j] != goal._board[i][j] and self._board[i][j] != '0':
-        #             temp += 1
-        # return temp
+    def get_manhattan_distance(self, goal) -> int:
+        score = 0
+        for (y, row) in enumerate(self._board):
+            for (x, val) in enumerate(row):
+                target_x, target_y = goal.find(val)
+                score += abs(target_x - x) + abs(target_y - y)
+
+        return score
 
     def get_cost(self, goal: "Node") -> int:
-        h = self.get_manhattan_distance(*goal.find_space())
+        h = self.get_manhattan_distance(goal)
         g = self.depth
         return g + h
 

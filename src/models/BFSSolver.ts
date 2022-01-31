@@ -8,6 +8,7 @@ export default class BFSSolver extends Solver {
     }
 
     solve(): [Node | null, number] {
+        console.log("Solving with BFS");
         const queue: Array<Node> = [];
         queue.push(this.start);
         const visited: Set<string> = new Set();
@@ -22,10 +23,11 @@ export default class BFSSolver extends Solver {
             visited.add(node.toString());
 
             if (node.isSame(this.end)) {
+                console.log(`Open queue length is ${queue.length}`);
                 return [node, visited.size];
             }
 
-            const [x, y] = node.findEmptyCell();
+            const [x, y] = node.find(0);
             node.getChildren(x, y).forEach(([ox, oy]) => {
                 const newNode = node.createChild();
                 newNode.setValue(x, y, node.getValue(ox, oy));

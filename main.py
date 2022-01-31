@@ -2,12 +2,16 @@ from time import sleep
 from typing import List, Tuple, Set
 from node import Node
 from collections import deque
+from sys import setrecursionlimit
+
+setrecursionlimit(1000)
 
 start = Node([
-    [0, 1, 2],
-    [8, 6, 4],
-    [7, 5, 3]
+    [8, 2, 3],
+    [0, 6, 1],
+    [5, 7, 4]
 ], None, 0)
+
 
 # start = Node([
 #     [1, 2, 3],
@@ -21,38 +25,29 @@ end = Node([
     [7, 8, 0]
 ], None, -1)
 
-def solve(start: Node, goal: Node, steps: int, visited: set):
+def solve(node: Node, goal: Node, visited: set):
 
-    open: Set[Node] = set()
-    close: Set[Node] = set()
-    open.add(start)
+    visited.add(str(node))
 
-    while len(open) != 0:
-        node = find_lowest_cost(goal, open)
-
-        if node == goal:
-            print("JAJAJJA")
-            return node, steps
-
-        x, y = node.find_space()
-        for (ox, oy) in node.get_neighbours(x, y):
-
-            new_node = node.make_child()
-            new_node.set_value(x, y, node.get_value(ox, oy))
-            new_node.set_value(ox, oy, 0)
-
-            if new_node in close or new_node in open:
-                continue
+    if node == goal:
+        return (node, len(visited))
 
 
-            open.add(new_node)
+    x, y = node.find(0)
+    for (ox, oy) in node.get_neighbours(x, y):
 
-        steps += 1
+        new_node = node.make_child()
+        new_node.set_value(x, y, node.get_value(ox, oy))
+        new_node.set_value(ox, oy, 0)
 
-        open.remove(node)
-        close.add(node)
+        if str(new_node) in visited:
+            continue
 
-    return None, 0
+        solve(new_node, goal, visited)
+
+
+
+    return None, -1
 
 
 def print_path(history: List[Node]):
@@ -74,7 +69,7 @@ def find_lowest_cost(goal, open):
 
 # program se nevraci, zacykli se
 # program funguje jen na posunuti o jedno
-end_node, visited = solve(start, end, 0, set())
+end_node, visited = solve(start, end, set())
 i = 0
 path = []
 while True:

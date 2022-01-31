@@ -30,11 +30,11 @@ export default class Node {
         return res;
     }
 
-    findEmptyCell(): [number, number] {
+    find(target: number): [number, number] {
         let res = null;
         this.board.forEach((row, y) => {
             row.forEach((val, x) => {
-                if (val === 0) {
+                if (val === target) {
                     res = [x, y];
                 }
             })
@@ -70,22 +70,39 @@ export default class Node {
     }
 
     createChild(): Node {
-        const newBoard = this.board.map((arr) => {
-            return arr.slice();
-        });
-
+        const newBoard = this.copyBoard();
         return new Node(newBoard, this, this.depth + 1);
     }
 
-    getManhattanDistance(x: number, y: number): number {
-        const [targetX, targetY] = this.findEmptyCell();
-        return Math.abs(targetX - x) + Math.abs(targetY - y);
+    copyBoard(): BoardArray {
+        return this.board.map((arr) => {
+            return arr.slice();
+        });
+    }
+
+    isSolvable(goal: Node): boolean {
+        return this.getManhattanDistance(goal) % 2 === 0;
+    }
+
+    getManhattanDistance(goal: Node): number {
+        let score = 0;
+        this.board.forEach((row, y) => {
+            row.forEach((val, x) => {
+                if (!val) {
+                    return;
+                }
+                const [targetX, targetY] = goal.find(val);
+                score += Math.abs(targetX - x) + Math.abs(targetY - y);
+
+            })
+        })
+
+        return score;
     }
 
     getCost(goal: Node) {
-        const h = this.getManhattanDistance(...goal.findEmptyCell());
+        const h = this.getManhattanDistance(goal);
         const g = this.depth;
-        console.log(`g: ${g} h: ${h}`)
         return g + h;
     }
 

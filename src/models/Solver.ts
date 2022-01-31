@@ -1,6 +1,6 @@
 import Node from "./Node";
 
-export default abstract class AStartSolver {
+export default abstract class Solver {
 
     start: Node;
     end: Node;
@@ -13,14 +13,25 @@ export default abstract class AStartSolver {
     abstract solve(): void
 
     printPath(end: Node) {
-        let node = end;
-        let count = 0;
-        while (node.parent !== null) {
+        let count = 0
+        this.getPath(end).forEach((node) => {
             console.log(JSON.stringify(node.board));
-            node = node.parent;
             count++;
-        }
-        console.log(JSON.stringify(node.board));
-        console.log(`Length of path is ${count}`);
+        })
+
+        console.log(`Length of path is ${count - 1}`);
     }
+
+    getPath(end: Node): Array<Node> {
+        const path: Array<Node> = [];
+
+        while (end.parent !== null) {
+            path.push(end);
+            end = end.parent as Node;
+        }
+        path.push(end);
+
+        return path.reverse();
+    }
+
 }

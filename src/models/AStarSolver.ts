@@ -1,29 +1,28 @@
 import Node from "./Node";
 import Solver from "./Solver";
 
-export default class AStartSolver extends Solver {
+export default class AStarSolver extends Solver {
 
     constructor(start: Node, end: Node) {
         super(start, end);
     }
 
     solve(): [Node | null, number] {
-        let queue: Array<Node> = [];
-        queue.push(this.start);
+        console.log("Solving with A*")
+        let open: Map<string, Node> = new Map();
         const closed: Set<string> = new Set();
+        open.set(this.start.toString(), this.start);
 
-        while (queue.length !== 0) {
-            const node = this.getLowestCost(queue);
-            // queue = this.removeFromOpenSet(node, queue);
-            console.log(`Picking from open set: ${queue}`);
-            console.log(`Node with lowest cost: ${node} \n cost: ${node.getCost(this.end)}`)
+        while (open.size !== 0) {
+            const node = this.getLowestCost(open);
+            open.delete(node.toString());
 
             if (node.isSame(this.end)) {
                 console.log("Found goal, exiting")
                 return [node, closed.size];
             }
 
-            const [x, y] = node.findEmptyCell();
+            const [x, y] = node.find(0);
             node.getChildren(x, y).forEach(([ox, oy]) => {
                 const newNode = node.createChild();
                 newNode.setValue(x, y, node.getValue(ox, oy));
@@ -33,19 +32,22 @@ export default class AStartSolver extends Solver {
                     return;
                 }
 
-                queue.push(newNode);
-                console.log(`Pushing new node: ${newNode}`);
+                const temp = open.get(newNode.toString())
+                if (temp && temp.getCost(this.end) < newNode.getCost(this.end)) {
+                    return;
+                }
+
+                open.set(newNode.toString(), newNode);
             })
 
             closed.add(node.toString());
-            this.removeFromOpenSet(node, queue);
 
         }
 
         return [null, -1];
     }
 
-    getLowestCost(arr: Array<Node>): Node {
+    getLowestCost(arr: Map<string, Node>): Node {
         let lowest: Node | null = null
 
         arr.forEach((element) => {

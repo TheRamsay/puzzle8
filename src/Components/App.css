@@ -1,3 +1,8 @@
+* {
+    font-family: 'Roboto', sans-serif;
+    color: #EEEED2;
+}
+
 html, body {
     background-color: #1f1f1f;
     height: 100vh;
@@ -46,19 +51,12 @@ html, body {
 
 .board {
     display: grid;
-    grid-template-columns: repeat(3, 72px);
-    grid-template-rows: repeat(3, 72px);
-    background-color: #d5c69c;
-    padding: 5px;
+    grid-template-columns: repeat(3, 80px);
+    grid-template-rows: repeat(3, 80px);
+    background-color: #769656;
+    padding: 15px;
     border: black solid 4px;
     border-radius: 10px;
-}
-
-.board-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 30%;
 }
 
 
@@ -69,7 +67,7 @@ html, body {
     font-size: 20px;
     color: #19282d;
     border: black solid 1px;
-    background-color: #f57f7f;
+    background-color: #EEEED2;
     border-radius: 25%;
     display: flex;
     justify-content: center;
@@ -82,10 +80,26 @@ html, body {
 
 .dashboard {
     height: 80%;
-    background-color: #61dafb;
+    background-color: #2c2d3d;
 }
 
 .wrapper {
     display: flex;
     justify-content: start;
+}
+
+.cell-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.selected {
+    background-color: #CF966A;
+}
+
+.board-wrapper {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
 }

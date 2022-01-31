@@ -1,19 +1,16 @@
-import React from "react";
+import React, { MouseEvent } from "react";
 
-type CellProps = { value: number };
+type CellProps = { value: number, onClick: (ev: MouseEvent<HTMLElement>) => void, id: string };
 
-const Cell = ({value}: CellProps) => {
+const Cell: React.FC<CellProps> = ({ value, onClick, id }) => {
 
-    if (value === 0) {
-        return (
-            <div className={"cell"}>
-            </div>
-        )
-    }
     return (
-        <div className={"cell"}>
-            {value}
+        <div className={"cell-wrapper"}>
+            <div id={id} className={"cell"} onClick={onClick}>
+                {value !== 0 ? value : ""}
+            </div>
         </div>
+
     )
 }
 

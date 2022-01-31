@@ -10,3 +10,15 @@ export const Wrapper = ({children}: WrapperProps) => {
     )
 }
 
+type BoardWrapperProps = { title: string };
+
+export const BoardWraper: React.FC<BoardWrapperProps> = ({children, title}) => {
+
+    return (
+        <div className={"board-wrapper"}>
+            <h3>{title}</h3>
+            {children}
+        </div>
+    )
+
+}
