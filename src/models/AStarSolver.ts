@@ -1,5 +1,6 @@
 import Node from "./Node";
 import Solver from "./Solver";
+import {PriorityQueue} from "typescript-collections";
 
 export default class AStarSolver extends Solver {
 
@@ -10,12 +11,29 @@ export default class AStarSolver extends Solver {
     solve(): [Node | null, number] {
         console.log("Solving with A*")
         let open: Map<string, Node> = new Map();
-        const closed: Set<string> = new Set();
-        open.set(this.start.toString(), this.start);
+        const q: PriorityQueue<Node> = new PriorityQueue((a: Node, b: Node) => {
+            if (a.getCost(this.end) < b.getCost(this.end)) {
+                return 1;
+            } if (a.getCost(this.end) > b.getCost(this.end)) {
+                return -1;
+            }
 
-        while (open.size !== 0) {
-            const node = this.getLowestCost(open);
-            open.delete(node.toString());
+            return 0;
+        });
+        const closed: Set<string> = new Set();
+        // open.set(this.start.toString(), this.start);
+        q.add(this.start);
+
+        // while (open.size !== 0) {
+        while (q.size() !== 0) {
+            // const node = this.getLowestCost(open);
+            const node = q.dequeue();
+
+            // open.delete(node.toString());
+
+            if (!node) {
+                continue;
+            }
 
             if (node.isSame(this.end)) {
                 console.log("Found goal, exiting")
@@ -32,12 +50,13 @@ export default class AStarSolver extends Solver {
                     return;
                 }
 
-                const temp = open.get(newNode.toString())
-                if (temp && temp.getCost(this.end) < newNode.getCost(this.end)) {
-                    return;
-                }
+                // const temp = open.get(newNode.toString())
+                // if (temp && temp.getCost(this.end) < newNode.getCost(this.end)) {
+                //     return;
+                // }
 
-                open.set(newNode.toString(), newNode);
+                // open.set(newNode.toString(), newNode);
+                q.add(newNode);
             })
 
             closed.add(node.toString());

@@ -100,6 +100,26 @@ export default class Node {
         return score;
     }
 
+    public static fromString(input: string, depth: number, parent: Node | null = null): Node {
+
+        if (input.length !== 9) {
+            throw new Error("Input length has to be 9 characters");
+        }
+
+        const arr: BoardArray = [];
+        let temp: Array<number> = [];
+        [...input].forEach((ch: string, idx) => {
+            if (idx !== 0 && idx % 3 === 0) {
+                arr.push(temp)
+                temp = [];
+            }
+            temp.push(Number(ch))
+        })
+        arr.push(temp)
+
+        return new Node(arr, parent, depth);
+    }
+
     getCost(goal: Node) {
         const h = this.getManhattanDistance(goal);
         const g = this.depth;

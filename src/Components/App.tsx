@@ -14,6 +14,8 @@ import { useReferredState } from '../hooks';
 import { DiagnosticCategory } from 'typescript';
 import { SelectChangeEvent } from '@mui/material';
 import Solver from '../models/Solver';
+import EditDialog from "./EditDialog";
+import Results, {ResultsProps} from "./Results";
 
 const App = () => {
     const [start, startRef, setStart] = useReferredState<Node>(new Node([
@@ -29,7 +31,9 @@ const App = () => {
     ], null, -1));
 
     const [path, setPath] = useState<PathBuilder>();
-
+    const [results, setResults] = useState<ResultsProps | null>(null);
+    const [open, setOpen] = useState(false);
+    const [selectedBoardType, setSelectedBoardType] = useState<string | null>(null);
     const [selectedCell, selectedCellRef, setSelectedCell] = useReferredState<string | null>(null);
     const [algorithm, setAlgorithm] = useState<string>();
 
@@ -107,22 +111,38 @@ const App = () => {
         }
 
         clearSelectedElements();
-        console.log(`Board is solvable: ${start.isSolvable(end)}`);
+        setResults(null);
+
+        const isSolvable = start.isSolvable(end);
+        console.log(`Board is solvable: ${isSolvable}`);
+
+        if (!isSolvable){
+            console.log("Exiting");
+            return;
+        }
 
         const startTime = Date.now();
 
         const solver = algorithm === "astar" ? new AStarSolver(start, end) : new BFSSolver(start, end);
-        const [node, steps] = solver.solve();
+        const [node, explored] = solver.solve();
 
         if (node) {
             solver.printPath(node);
-            setPath(new PathBuilder(solver.getPath(node)));
-            console.log("Unique nodes explored: " + steps);
+            const p = new PathBuilder(solver.getPath(node))
+
+            if (!p) {
+                throw Error("Error while creating the path");
+            }
+
+            const elapsedTime = (Date.now() - startTime) / 1000;
+            setResults({time: elapsedTime, explored: explored, length: p.size()})
+            console.log("Elapsed time: " +  elapsedTime + " seconds");
+            console.log("Unique nodes explored: " + explored);
+            setPath(p);
+
         } else {
             throw new Error("Path not found");
         }
-
-        console.log("Elapsed time: " + (Date.now() - startTime) / 1000 + " seconds");
     }
 
     const goForward = () => {
@@ -149,17 +169,49 @@ const App = () => {
         setSelectedCell(null);
     }
 
+    const openEditDialog = (ev: MouseEvent<HTMLButtonElement>) => {
+        setOpen(true);
+        if ((ev.target as HTMLButtonElement).id.includes("start")) {
+            setSelectedBoardType("start");
+        } else {
+            setSelectedBoardType("end");
+        }
+    }
+    const closeEditDialog = () => {
+        setOpen(false);
+        setSelectedBoardType(null);
+    }
+    const saveEditDialog = (input: string) => {
+        setOpen(false);
+        if (input.length !== 9 || [...input].some((val) => isNaN(+val))) {
+            return;
+        }
+
+        if (!selectedBoardType) {
+            return;
+        }
+
+        const dispatch = selectedBoardType === "start" ? setStart : setEnd;
+        const depth = selectedBoardType === "start" ? 0 : -1;
+
+        dispatch(Node.fromString(input, depth));
+        setSelectedBoardType(null);
+
+    }
+
     return (
         <div className="App">
             <Wrapper>
-                <BoardWraper title={"start"}>
+                <BoardWraper title={"start"} openDialog={openEditDialog}>
                     <Board boardType={"start"} data={start.board} clickHandler={handleSelect} />
                 </BoardWraper>
-                <BoardWraper title={"end"}>
+                <BoardWraper title={"end"} openDialog={openEditDialog}>
                     <Board boardType={"end"} data={end.board} clickHandler={handleSelect} />
                 </BoardWraper>
                 <Dashboard handleSolve={solveBoard} goBackward={goBackward} goForward={goForward} handleAlgoSelect={handleAlgorithmSelection} />
+                {results ? <Results time={results.time} explored={results.explored} length={results.length} /> : <></>}
             </Wrapper>
+            <EditDialog open={open} handleClose={closeEditDialog} handleSave={saveEditDialog}/>
         </div>
     );
 

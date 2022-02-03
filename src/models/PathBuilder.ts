@@ -31,4 +31,7 @@ export class PathBuilder {
         return this.path[this.pointer];
     }
 
+    size(): number {
+        return this.path.length;
+    }
 }

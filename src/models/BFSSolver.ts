@@ -23,7 +23,6 @@ export default class BFSSolver extends Solver {
             visited.add(node.toString());
 
             if (node.isSame(this.end)) {
-                console.log(`Open queue length is ${queue.length}`);
                 return [node, visited.size];
             }
 
