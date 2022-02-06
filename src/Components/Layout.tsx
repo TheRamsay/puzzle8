@@ -11,18 +11,26 @@ export const Wrapper = ({children}: WrapperProps) => {
     )
 }
 
-type BoardWrapperProps = { title: string, openDialog: (ev: React.MouseEvent<HTMLButtonElement>) => void};
+type BoardWrapperProps = { title: string, openDialog: (ev: React.MouseEvent<HTMLButtonElement>) => void };
 
-export const BoardWraper: React.FC<BoardWrapperProps> = ({children, title, openDialog }) => {
+export const BoardWraper: React.FC<BoardWrapperProps> = ({children, title, openDialog}) => {
 
     return (
         <div className={"board-wrapper"}>
             <div className={"board-header"}>
-                <h3>{title}</h3>
-                <Button id={`edit-${title}`} onClick={openDialog}>edit</Button>
+                <h2 className={"board-title"}>{title}</h2>
             </div>
             {children}
         </div>
     )
 
+}
+
+export const BoxWrapper: React.FC = ({children}) => {
+    return (
+        <div className={"box-wrapper"}>
+
+            {children}
+        </div>
+    )
 }

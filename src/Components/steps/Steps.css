@@ -1,0 +1,43 @@
+.steps-list-wrapper {
+    display: flex;
+    width: 95%;
+    max-height: 50vh;
+    min-height: 50vh;
+}
+
+.steps-list {
+    display: flex;
+    width: 100%;
+    justify-content: start;
+    flex-direction: column;
+    align-items: center;
+    overflow-y: auto;
+}
+
+
+.step {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background-color: #282C34;
+    border-radius: 5px;
+    padding: 15px;
+    margin: 10px;
+    width: 60%;
+    cursor: pointer;
+}
+
+.steps {
+    grid-column: 3/5;
+    grid-row: 1/3;
+    width: 50%;
+    margin-top: 69px;
+}
+
+.current-step {
+    border: 3px solid #53644e;
+}
+
+.controls {
+    margin-top: 10px;
+}

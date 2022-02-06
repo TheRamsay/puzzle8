@@ -34,4 +34,21 @@ export class PathBuilder {
     size(): number {
         return this.path.length;
     }
+
+    getPath(): Array<Node> {
+        return this.path;
+    }
+
+
+    setPointer(val: number): void {
+        this.pointer = val;
+    }
+
+    getPointer(): number {
+        return this.pointer;
+    }
+
+    getCurrent(): Node {
+        return this.path[this.pointer];
+    }
 }

@@ -1,21 +1,25 @@
-import { BoardArray } from "../types";
+import {BoardArray} from "../types";
 
 export default class Node {
     board: BoardArray;
     parent: Node | null;
     depth: number
+    // id: number
+    direction: string
 
-    constructor(start: BoardArray, parent: Node | null, depth: number) {
+    constructor(start: BoardArray, parent: Node | null, depth: number, direction: string) {
         this.board = start;
         this.parent = parent;
         this.depth = depth;
+        // this.id = id;
+        this.direction = direction
     }
 
-    getChildren(x: number, y: number): Array<[number, number]> {
-        const offsets: Array<[number, number]> = [[1, 0], [-1, 0], [0, 1], [0, -1]];
-        const res: Array<[number, number]> = [];
+    getChildren(x: number, y: number): Array<[number, number, string]> {
+        const offsets: Array<[number, number, string]> = [[1, 0, "right"], [-1, 0, "left"], [0, 1, "down"], [0, -1, "up"]];
+        const res: Array<[number, number, string]> = [];
 
-        offsets.forEach(([ox, oy]) => {
+        offsets.forEach(([ox, oy, direction]) => {
             const newX = ox + x;
             const newY = oy + y;
 
@@ -23,7 +27,7 @@ export default class Node {
                 return;
             }
 
-            res.push([newX, newY]);
+            res.push([newX, newY, direction]);
 
         })
 
@@ -69,9 +73,9 @@ export default class Node {
         return this.board.flat().join("");
     }
 
-    createChild(): Node {
+    createChild(direction: string): Node {
         const newBoard = this.copyBoard();
-        return new Node(newBoard, this, this.depth + 1);
+        return new Node(newBoard, this, this.depth + 1, direction);
     }
 
     copyBoard(): BoardArray {
@@ -81,7 +85,32 @@ export default class Node {
     }
 
     isSolvable(goal: Node): boolean {
-        return this.getManhattanDistance(goal) % 2 === 0;
+        let inversions = 0;
+        const flatten = this.board.flat();
+        const values = new Array(9).fill(0);
+
+        goal.board.flat().forEach((el, idx) => {
+            if (el === null) {
+                return;
+            }
+            values[el] = idx;
+        })
+
+        flatten.forEach((el, idx) => {
+            for (let j = idx + 1; j < 9; j++) {
+                if (!el || !flatten || !flatten[j]) {
+                    continue;
+                }
+
+                // @ts-ignore
+                if (el !== 0 && flatten[j] !== 0 && values[el] > values[flatten[j]]) {
+                    inversions++;
+                }
+
+            }
+        })
+
+        return inversions % 2 === 0;
     }
 
     getManhattanDistance(goal: Node): number {
@@ -117,7 +146,7 @@ export default class Node {
         })
         arr.push(temp)
 
-        return new Node(arr, parent, depth);
+        return new Node(arr, parent, depth, "");
     }
 
     getCost(goal: Node) {

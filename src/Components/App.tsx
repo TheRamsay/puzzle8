@@ -1,41 +1,42 @@
-import React, { MouseEvent, useEffect, useRef, useState } from 'react';
+import React, {MouseEvent, useEffect, useRef, useState} from 'react';
 import './App.css';
 import BFSSolver from "../models/BFSSolver";
 import AStarSolver from "../models/AStarSolver";
 import Node from "../models/Node";
 import Board from "./board/Board";
-import { BoardArray } from "../types";
-import { getHashes } from "crypto";
+import {BoardArray} from "../types";
+import {getHashes} from "crypto";
 import Dashboard from "./Dashboard";
-import { BoardWraper, Wrapper } from "./Layout";
-import { PathBuilder } from '../models/PathBuilder';
-import DFSSolver from '../models/DFSSolver';
-import { useReferredState } from '../hooks';
-import { DiagnosticCategory } from 'typescript';
-import { SelectChangeEvent } from '@mui/material';
+import {BoardWraper, Wrapper} from "./Layout";
+import {PathBuilder} from '../models/PathBuilder';
+import {useReferredState} from '../hooks';
+import {DiagnosticCategory} from 'typescript';
+import {SelectChangeEvent} from '@mui/material';
 import Solver from '../models/Solver';
 import EditDialog from "./EditDialog";
 import Results, {ResultsProps} from "./Results";
+import Steps from "./steps/Steps";
 
 const App = () => {
     const [start, startRef, setStart] = useReferredState<Node>(new Node([
-        [1, 2, 3],
-        [4, 5, 6],
-        [7, 8, 0]
-    ], null, 0));
+        [8, 5, 6],
+        [7, 2, 3],
+        [4, 1, 0]
+    ], null, 0, ""));
 
     const [end, endRef, setEnd] = useReferredState<Node>(new Node([
-        [1, 2, 3],
-        [4, 5, 6],
-        [7, 8, 0]
-    ], null, -1));
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8]
+    ], null, -1, ""));
 
-    const [path, setPath] = useState<PathBuilder>();
+    const [path, setPath] = useState<PathBuilder | null>(null);
     const [results, setResults] = useState<ResultsProps | null>(null);
     const [open, setOpen] = useState(false);
+    const [solvable, setSolvable] = useState(false);
     const [selectedBoardType, setSelectedBoardType] = useState<string | null>(null);
     const [selectedCell, selectedCellRef, setSelectedCell] = useReferredState<string | null>(null);
-    const [algorithm, setAlgorithm] = useState<string>();
+    const [algorithm, setAlgorithm] = useState<string>("astar");
 
     // const algoMap: Map<string, BFSSolver | AStarSolver> = new Map([["bfs", BFSSolver], ["astar", AStarSolver]])
 
@@ -44,6 +45,10 @@ const App = () => {
 
         return () => window.removeEventListener("keydown", handleKeyPress);
     }, [])
+
+    useEffect(() => {
+        setSolvable(start.isSolvable(end))
+    }, [start, end])
 
     const handleKeyPress = (ev: KeyboardEvent) => {
         const newVal = +ev.key;
@@ -79,7 +84,7 @@ const App = () => {
         const originalVal = originalNode.getValue(x, y);
         const [newX, newY] = originalNode.find(newVal);
 
-        const newNode = new Node(newBoard, null, depth);
+        const newNode = new Node(newBoard, null, depth, "");
         newNode.setValue(x, y, newVal);
         newNode.setValue(newX, newY, originalVal);
 
@@ -112,11 +117,12 @@ const App = () => {
 
         clearSelectedElements();
         setResults(null);
+        setPath(null);
 
         const isSolvable = start.isSolvable(end);
         console.log(`Board is solvable: ${isSolvable}`);
 
-        if (!isSolvable){
+        if (!isSolvable) {
             console.log("Exiting");
             return;
         }
@@ -136,7 +142,7 @@ const App = () => {
 
             const elapsedTime = (Date.now() - startTime) / 1000;
             setResults({time: elapsedTime, explored: explored, length: p.size()})
-            console.log("Elapsed time: " +  elapsedTime + " seconds");
+            console.log("Elapsed time: " + elapsedTime + " seconds");
             console.log("Unique nodes explored: " + explored);
             setPath(p);
 
@@ -145,16 +151,29 @@ const App = () => {
         }
     }
 
-    const goForward = () => {
-        if (path) {
-            setStart(path.next());
+    const walkPath = (direction: string) => {
+        if (!path) {
+            return;
         }
-    }
 
-    const goBackward = () => {
-        if (path) {
+        if (direction === "forward") {
+            setStart(path.next());
+        } else {
             setStart(path.prev());
         }
+
+        document.querySelector(`#step-${path.getPointer()}`)?.scrollIntoView({behavior: "smooth", block: "center"});
+    }
+
+    const handleStepSelect = (ev: React.MouseEvent<HTMLDivElement>) => {
+        if (!path) {
+            return;
+        }
+
+        const newPointer = Number((ev.currentTarget as HTMLDivElement).id.split("-")[1]);
+        path.setPointer(newPointer);
+        setStart(path.getCurrent());
+        document.querySelector(`#step-${path.getPointer()}`)?.scrollIntoView({behavior: "smooth", block: "center"});
     }
 
     const handleAlgorithmSelection = (ev: SelectChangeEvent<unknown>) => {
@@ -202,14 +221,26 @@ const App = () => {
     return (
         <div className="App">
             <Wrapper>
-                <BoardWraper title={"start"} openDialog={openEditDialog}>
-                    <Board boardType={"start"} data={start.board} clickHandler={handleSelect} />
-                </BoardWraper>
-                <BoardWraper title={"end"} openDialog={openEditDialog}>
-                    <Board boardType={"end"} data={end.board} clickHandler={handleSelect} />
-                </BoardWraper>
-                <Dashboard handleSolve={solveBoard} goBackward={goBackward} goForward={goForward} handleAlgoSelect={handleAlgorithmSelection} />
-                {results ? <Results time={results.time} explored={results.explored} length={results.length} /> : <></>}
+                <div className={"boards"}>
+                    <BoardWraper title={"start"} openDialog={openEditDialog}>
+                        <Board boardType={"start"} data={start.board} clickHandler={handleSelect}/>
+                    </BoardWraper>
+                    <BoardWraper title={"end"} openDialog={openEditDialog}>
+                        <Board boardType={"end"} data={end.board} clickHandler={handleSelect}/>
+                    </BoardWraper>
+                </div>
+                <Dashboard
+                    handleSolve={solveBoard}
+                    handleAlgoSelect={handleAlgorithmSelection}
+                    solvable={solvable}
+                    executionTime={results ? results.time : 0}
+                    explored={results ? results.explored : 0}
+                    pathLength={results ? results.length : 0}
+                />
+                <Steps
+                    path={path}
+                    handleSelect={handleStepSelect}
+                    handleWalk={walkPath}/>
             </Wrapper>
             <EditDialog open={open} handleClose={closeEditDialog} handleSave={saveEditDialog}/>
         </div>

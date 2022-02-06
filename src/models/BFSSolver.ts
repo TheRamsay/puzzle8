@@ -27,8 +27,8 @@ export default class BFSSolver extends Solver {
             }
 
             const [x, y] = node.find(0);
-            node.getChildren(x, y).forEach(([ox, oy]) => {
-                const newNode = node.createChild();
+            node.getChildren(x, y).forEach(([ox, oy, direction]) => {
+                const newNode = node.createChild(direction);
                 newNode.setValue(x, y, node.getValue(ox, oy));
                 newNode.setValue(ox, oy, 0);
 
