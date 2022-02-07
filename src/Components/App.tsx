@@ -128,23 +128,28 @@ const App = () => {
         }
 
         const startTime = Date.now();
-
         const solver = algorithm === "astar" ? new AStarSolver(start, end) : new BFSSolver(start, end);
         const [node, explored] = solver.solve();
 
         if (node) {
             solver.printPath(node);
-            const p = new PathBuilder(solver.getPath(node))
+            const p = new PathBuilder(solver.getPath(node));
+            console.log(node)
+            console.log(solver.getPath(node));
 
             if (!p) {
                 throw Error("Error while creating the path");
             }
+
+            console.log(p);
 
             const elapsedTime = (Date.now() - startTime) / 1000;
             setResults({time: elapsedTime, explored: explored, length: p.size()})
             console.log("Elapsed time: " + elapsedTime + " seconds");
             console.log("Unique nodes explored: " + explored);
             setPath(p);
+            console.log(results)
+            console.log(path)
 
         } else {
             throw new Error("Path not found");
@@ -157,9 +162,13 @@ const App = () => {
         }
 
         if (direction === "forward") {
-            setStart(path.next());
+            const nextNode = path.next();
+            const newNode = new Node(nextNode.copyBoard(), null, 0, "");
+            setStart(newNode);
         } else {
-            setStart(path.prev());
+            const prevNode = path.prev();
+            const newNode = new Node(prevNode.copyBoard(), null, 0, "");
+            setStart(newNode);
         }
 
         document.querySelector(`#step-${path.getPointer()}`)?.scrollIntoView({behavior: "smooth", block: "center"});
@@ -172,7 +181,8 @@ const App = () => {
 
         const newPointer = Number((ev.currentTarget as HTMLDivElement).id.split("-")[1]);
         path.setPointer(newPointer);
-        setStart(path.getCurrent());
+        const currentNode = path.getCurrent();
+        setStart(new Node(currentNode.copyBoard(), null, 0, ""));
         document.querySelector(`#step-${path.getPointer()}`)?.scrollIntoView({behavior: "smooth", block: "center"});
     }
 
@@ -235,7 +245,7 @@ const App = () => {
                     solvable={solvable}
                     executionTime={results ? results.time : 0}
                     explored={results ? results.explored : 0}
-                    pathLength={results ? results.length : 0}
+                    pathLength={results ? results.length - 1 : 0}
                 />
                 <Steps
                     path={path}
