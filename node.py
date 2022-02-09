@@ -60,6 +60,7 @@ class Node:
     def __ne__(self, other: "Node"):
         return not (self == other)
 
+
     def __hash__(self):
         return hash("".join([str(val) for row in self._board for val in row]))
 

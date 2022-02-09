@@ -11,11 +11,6 @@ from time import time
 setrecursionlimit(1000)
 
 
-@dataclass(order=True)
-class PrioritizedItem:
-    priority: int
-    item: Any = field(compare=False)
-
 
 start = Node([
     [8, 6, 7],
@@ -30,14 +25,13 @@ end = Node([
 ], None, -1)
 
 startt = time()
-q = PriorityQueue()
 closed = set()
-q.put(PrioritizedItem(start.get_cost(end), start))
+q = deque()
+q.append(start)
 res = None
 
 while True:
-    wrapper = q.get()
-    node = wrapper.item
+    node = q.popleft()
 
     if node == end:
         res = node
@@ -52,13 +46,14 @@ while True:
         if (new_node in closed):
             continue
 
-        q.put(PrioritizedItem(new_node.get_cost(end), new_node))
+        q.append(new_node)
 
     closed.add(node)
 
 if res:
     print(res)
     print("Elapsed time", time() - startt)
+    print(len(closed))
     count = 0
     while node.parent is not None:
         count +=1
