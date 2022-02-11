@@ -16,6 +16,10 @@ export default class BFSSolver extends Solver {
         while (queue.length !== 0) {
             const node = queue.shift();
 
+            if (this.stop) {
+                return [null, -1];
+            }
+
             if (!node) {
                 continue;
             }

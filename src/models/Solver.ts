@@ -4,10 +4,12 @@ export default abstract class Solver {
 
     start: Node;
     end: Node;
+    stop: boolean
 
     constructor(start: Node, end: Node) {
         this.start = start;
         this.end = end;
+        this.stop = false;
     }
 
     abstract solve(): void
@@ -32,6 +34,10 @@ export default abstract class Solver {
         path.push(end);
 
         return path.reverse();
+    }
+
+    exit(): void {
+        this.stop = true;
     }
 
 }

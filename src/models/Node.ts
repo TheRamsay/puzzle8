@@ -7,8 +7,8 @@ export default class Node {
     // id: number
     direction: string
 
-    constructor(start: BoardArray, parent: Node | null, depth: number, direction: string) {
-        this.board = start;
+    constructor(board: BoardArray, parent: Node | null, depth: number, direction: string) {
+        this.board = board;
         this.parent = parent;
         this.depth = depth;
         // this.id = id;
@@ -84,6 +84,10 @@ export default class Node {
         });
     }
 
+    copyNode(): Node {
+        return new Node(this.copyBoard(), this.parent, this.depth, this.direction)
+    }
+
     isSolvable(goal: Node): boolean {
         let inversions = 0;
         const flatten = this.board.flat();
@@ -147,6 +151,16 @@ export default class Node {
         arr.push(temp)
 
         return new Node(arr, parent, depth, "");
+    }
+
+    public static fromObject(payload: { board: BoardArray, parent: Node | null, depth: number, direction: string }): Node {
+
+        if (payload.parent === null) {
+            return new Node(payload.board, payload.parent, payload.depth, payload.direction);
+        }
+
+        return new Node(payload.board, Node.fromObject(payload.parent), payload.depth, payload.direction);
+
     }
 
     getCost(goal: Node) {

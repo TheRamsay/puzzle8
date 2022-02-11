@@ -4,6 +4,7 @@ import {BoxWrapper} from "./Layout";
 
 type DashboardProps = {
     handleSolve: () => void,
+    handleStop: () => void,
     handleAlgoSelect: (event: SelectChangeEvent<unknown>) => void,
     solvable: boolean,
     explored: number,
@@ -13,6 +14,7 @@ type DashboardProps = {
 
 const Dashboard: React.FC<DashboardProps> = ({
                                                  handleSolve,
+                                                 handleStop,
                                                  handleAlgoSelect,
                                                  solvable,
                                                  executionTime,
@@ -76,6 +78,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                     </div>
                     <div className={"dashboard-btn"}>
                         <Button variant="contained" onClick={handleSolve}>solve</Button>
+                        <Button variant="contained" onClick={handleStop}>stop</Button>
                     </div>
                     <div className={"dashboard-box"}>
                         <p>execution time: </p>

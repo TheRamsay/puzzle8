@@ -13,7 +13,8 @@ export default class AStarSolver extends Solver {
         const q: PriorityQueue<Node> = new PriorityQueue((a: Node, b: Node) => {
             if (a.getCost(this.end) < b.getCost(this.end)) {
                 return 1;
-            } if (a.getCost(this.end) > b.getCost(this.end)) {
+            }
+            if (a.getCost(this.end) > b.getCost(this.end)) {
                 return -1;
             }
 
@@ -24,6 +25,10 @@ export default class AStarSolver extends Solver {
 
         while (q.size() !== 0) {
             const node = q.dequeue();
+
+            if (this.stop) {
+                return [null, -1];
+            }
 
             if (!node) {
                 continue;

@@ -16,18 +16,19 @@ import Solver from '../models/Solver';
 import EditDialog from "./EditDialog";
 import Results, {ResultsProps} from "./Results";
 import Steps from "./steps/Steps";
+import internal from "stream";
 
 const App = () => {
     const [start, startRef, setStart] = useReferredState<Node>(new Node([
-        [8, 5, 6],
-        [7, 2, 3],
-        [4, 1, 0]
+        [8, 6, 7],
+        [2, 5, 4],
+        [3, 0, 1]
     ], null, 0, ""));
 
     const [end, endRef, setEnd] = useReferredState<Node>(new Node([
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8]
+        [1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 0]
     ], null, -1, ""));
 
     const [path, setPath] = useState<PathBuilder | null>(null);
@@ -37,6 +38,7 @@ const App = () => {
     const [selectedBoardType, setSelectedBoardType] = useState<string | null>(null);
     const [selectedCell, selectedCellRef, setSelectedCell] = useReferredState<string | null>(null);
     const [algorithm, setAlgorithm] = useState<string>("astar");
+    const [instance, setInstance] = useState(new Worker("/worker.js"));
 
     // const algoMap: Map<string, BFSSolver | AStarSolver> = new Map([["bfs", BFSSolver], ["astar", AStarSolver]])
 
@@ -45,6 +47,30 @@ const App = () => {
 
         return () => window.removeEventListener("keydown", handleKeyPress);
     }, [])
+
+    useEffect(() => {
+        instance.onmessage = (event: MessageEvent) => {
+            let {node, explored, elapsedTime} = event.data;
+            if (node) {
+                node = Node.fromObject(node);
+                const solver = algorithm === "astar" ? new AStarSolver(start, end) : new BFSSolver(start, end);
+
+                solver.printPath(node);
+                const p = new PathBuilder(solver.getPath(node));
+                if (!p) {
+                    throw Error("Error while creating the path");
+                }
+
+                setPath(p);
+                setResults({time: elapsedTime, explored: explored, length: p.size()})
+                console.log("Elapsed time: " + elapsedTime + " seconds");
+                console.log("Unique nodes explored: " + explored);
+            } else {
+                throw new Error("Path not found");
+            }
+        }
+    }, [instance])
+
 
     useEffect(() => {
         setSolvable(start.isSolvable(end))
@@ -92,7 +118,8 @@ const App = () => {
 
     }
 
-    const handleSelect = (ev: MouseEvent<HTMLElement>) => {
+    const handleCellSelect = (ev: MouseEvent<HTMLElement>) => {
+        ev.preventDefault();
         const target = ev.target as HTMLDivElement;
         if (target.id === selectedCell) {
             target.classList.remove("selected");
@@ -108,6 +135,32 @@ const App = () => {
                 setSelectedCell(target.id);
             }
         }
+    }
+
+    const handleCellMove = (ev: MouseEvent<HTMLElement>) => {
+        const target = (ev.target) as HTMLDivElement;
+
+        const [_x, _y, boardType] = target.id.split("-");
+        const board = boardType === "start" ? start.copyNode() : end.copyNode();
+
+        const newX = Number(_x);
+        const newY = Number(_y);
+
+        if (!board.getChildren(...board.find(0)).some(([ox, oy, dir]) => {
+            return newX === ox && newY === oy;
+        })) {
+            return;
+        }
+
+        const [x, y] = board.find(0);
+
+        board.setValue(x, y, board.getValue(newX, newY));
+        board.setValue(newX, newY, 0);
+
+        const dispatcher = boardType === "start" ? setStart : setEnd;
+        dispatcher(board)
+
+
     }
 
     const solveBoard = () => {
@@ -127,33 +180,7 @@ const App = () => {
             return;
         }
 
-        const startTime = Date.now();
-        const solver = algorithm === "astar" ? new AStarSolver(start, end) : new BFSSolver(start, end);
-        const [node, explored] = solver.solve();
-
-        if (node) {
-            solver.printPath(node);
-            const p = new PathBuilder(solver.getPath(node));
-            console.log(node)
-            console.log(solver.getPath(node));
-
-            if (!p) {
-                throw Error("Error while creating the path");
-            }
-
-            console.log(p);
-
-            const elapsedTime = (Date.now() - startTime) / 1000;
-            setResults({time: elapsedTime, explored: explored, length: p.size()})
-            console.log("Elapsed time: " + elapsedTime + " seconds");
-            console.log("Unique nodes explored: " + explored);
-            setPath(p);
-            console.log(results)
-            console.log(path)
-
-        } else {
-            throw new Error("Path not found");
-        }
+        instance.postMessage({start, end, algorithm})
     }
 
     const walkPath = (direction: string) => {
@@ -228,19 +255,34 @@ const App = () => {
 
     }
 
+    const handleStop = () => {
+        instance.terminate();
+        setInstance(new Worker("/worker.js"));
+        console.log("Stopped");
+    }
+
     return (
         <div className="App">
             <Wrapper>
                 <div className={"boards"}>
                     <BoardWraper title={"start"} openDialog={openEditDialog}>
-                        <Board boardType={"start"} data={start.board} clickHandler={handleSelect}/>
+                        <Board
+                            boardType={"start"}
+                            data={start.board}
+                            cellMoveHandler={handleCellMove}
+                            cellSelectHandler={handleCellSelect}/>
                     </BoardWraper>
                     <BoardWraper title={"end"} openDialog={openEditDialog}>
-                        <Board boardType={"end"} data={end.board} clickHandler={handleSelect}/>
+                        <Board
+                            boardType={"end"}
+                            data={end.board}
+                            cellMoveHandler={handleCellMove}
+                            cellSelectHandler={handleCellSelect}/>
                     </BoardWraper>
                 </div>
                 <Dashboard
                     handleSolve={solveBoard}
+                    handleStop={handleStop}
                     handleAlgoSelect={handleAlgorithmSelection}
                     solvable={solvable}
                     executionTime={results ? results.time : 0}

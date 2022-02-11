@@ -150,7 +150,10 @@ html, body {
     display: flex;
     justify-content: start;
     align-items: center;
-    margin-left: 10%;
+}
+
+.dashboard-btn > button {
+    margin-right: 15px;
 }
 
 .dashboard-box {
