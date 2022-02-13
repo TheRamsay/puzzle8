@@ -7,7 +7,7 @@ export default class BFSSolver extends Solver {
         super(start, end);
     }
 
-    solve(): [Node | null, number] {
+    solve(): [Node | null, number, number] {
         console.log("Solving with BFS");
         const queue: Array<Node> = [];
         queue.push(this.start);
@@ -16,10 +16,6 @@ export default class BFSSolver extends Solver {
         while (queue.length !== 0) {
             const node = queue.shift();
 
-            if (this.stop) {
-                return [null, -1];
-            }
-
             if (!node) {
                 continue;
             }
@@ -27,11 +23,12 @@ export default class BFSSolver extends Solver {
             visited.add(node.toString());
 
             if (node.isSame(this.end)) {
-                return [node, visited.size];
+                return [node, visited.size, this.generated];
             }
 
             const [x, y] = node.find(0);
             node.getChildren(x, y).forEach(([ox, oy, direction]) => {
+                this.generated++;
                 const newNode = node.createChild(direction);
                 newNode.setValue(x, y, node.getValue(ox, oy));
                 newNode.setValue(ox, oy, 0);
@@ -45,6 +42,6 @@ export default class BFSSolver extends Solver {
 
         }
 
-        return [null, -1];
+        return [null, -1, -1];
     }
 }

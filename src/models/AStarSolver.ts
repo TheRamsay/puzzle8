@@ -1,6 +1,6 @@
 import Node from "./Node";
 import Solver from "./Solver";
-import {PriorityQueue} from "typescript-collections";
+import { PriorityQueue } from "typescript-collections";
 
 export default class AStarSolver extends Solver {
 
@@ -8,7 +8,7 @@ export default class AStarSolver extends Solver {
         super(start, end);
     }
 
-    solve(): [Node | null, number] {
+    solve(): [Node | null, number, number] {
         console.log("Solving with A*")
         const q: PriorityQueue<Node> = new PriorityQueue((a: Node, b: Node) => {
             if (a.getCost(this.end) < b.getCost(this.end)) {
@@ -26,21 +26,18 @@ export default class AStarSolver extends Solver {
         while (q.size() !== 0) {
             const node = q.dequeue();
 
-            if (this.stop) {
-                return [null, -1];
-            }
-
             if (!node) {
                 continue;
             }
 
             if (node.isSame(this.end)) {
                 console.log("Found goal, exiting")
-                return [node, closed.size];
+                return [node, closed.size, this.generated];
             }
 
             const [x, y] = node.find(0);
             node.getChildren(x, y).forEach(([ox, oy, direction]) => {
+                this.generated++;
                 const newNode = node.createChild(direction);
                 newNode.setValue(x, y, node.getValue(ox, oy));
                 newNode.setValue(ox, oy, 0);
@@ -56,6 +53,6 @@ export default class AStarSolver extends Solver {
 
         }
 
-        return [null, -1];
+        return [null, -1, -1];
     }
 }

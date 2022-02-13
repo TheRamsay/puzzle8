@@ -1,22 +1,22 @@
-import React, {MouseEvent, useEffect, useRef, useState} from 'react';
+import React, { MouseEvent, useEffect, useRef, useState } from 'react';
 import './App.css';
 import BFSSolver from "../models/BFSSolver";
 import AStarSolver from "../models/AStarSolver";
 import Node from "../models/Node";
 import Board from "./board/Board";
-import {BoardArray} from "../types";
-import {getHashes} from "crypto";
+import { BoardArray } from "../types";
+import { getHashes } from "crypto";
 import Dashboard from "./Dashboard";
-import {BoardWraper, Wrapper} from "./Layout";
-import {PathBuilder} from '../models/PathBuilder';
-import {useReferredState} from '../hooks';
-import {DiagnosticCategory} from 'typescript';
-import {SelectChangeEvent} from '@mui/material';
+import { BoardWraper, Wrapper } from "./Layout";
+import { PathBuilder } from '../models/PathBuilder';
+import { useReferredState } from '../hooks';
+import { DiagnosticCategory } from 'typescript';
+import { Button, SelectChangeEvent } from '@mui/material';
 import Solver from '../models/Solver';
 import EditDialog from "./EditDialog";
-import Results, {ResultsProps} from "./Results";
+import Results, { ResultsProps } from "./Results";
 import Steps from "./steps/Steps";
-import internal from "stream";
+import CasinoIcon from '@mui/icons-material/Casino';
 
 const App = () => {
     const [start, startRef, setStart] = useReferredState<Node>(new Node([
@@ -31,7 +31,7 @@ const App = () => {
         [7, 8, 0]
     ], null, -1, ""));
 
-    const [path, setPath] = useState<PathBuilder | null>(null);
+    const [path, pathRef, setPath] = useReferredState<PathBuilder | null>(null);
     const [results, setResults] = useState<ResultsProps | null>(null);
     const [open, setOpen] = useState(false);
     const [solvable, setSolvable] = useState(false);
@@ -43,14 +43,23 @@ const App = () => {
     // const algoMap: Map<string, BFSSolver | AStarSolver> = new Map([["bfs", BFSSolver], ["astar", AStarSolver]])
 
     useEffect(() => {
-        window.addEventListener("keydown", handleKeyPress)
+        const handler = (ev: KeyboardEvent) => {
+            console.log(ev.key);
+            if (ev.key.includes("Arrow")) {
+                handleArrowNavigation(ev);
+            } else {
+                handleKeyPress(ev);
+            }
+        }
 
-        return () => window.removeEventListener("keydown", handleKeyPress);
+        window.addEventListener("keydown", handler)
+
+        return () => window.removeEventListener("keydown", handler);
     }, [])
 
     useEffect(() => {
         instance.onmessage = (event: MessageEvent) => {
-            let {node, explored, elapsedTime} = event.data;
+            let { node, explored, generated, elapsedTime } = event.data;
             if (node) {
                 node = Node.fromObject(node);
                 const solver = algorithm === "astar" ? new AStarSolver(start, end) : new BFSSolver(start, end);
@@ -62,9 +71,10 @@ const App = () => {
                 }
 
                 setPath(p);
-                setResults({time: elapsedTime, explored: explored, length: p.size()})
+                setResults({ time: elapsedTime, explored: explored, length: p.size() })
                 console.log("Elapsed time: " + elapsedTime + " seconds");
                 console.log("Unique nodes explored: " + explored);
+                console.log("Nodes generated: " + generated);
             } else {
                 throw new Error("Path not found");
             }
@@ -75,6 +85,18 @@ const App = () => {
     useEffect(() => {
         setSolvable(start.isSolvable(end))
     }, [start, end])
+
+    useEffect(() => {
+        if (path) {
+            document.querySelector(`#step-${path.getPointer()}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+    }, [start])
+
+
+    const generateStart = () => {
+        const node = Solver.generateProblem(end);
+        setStart(node);
+    }
 
     const handleKeyPress = (ev: KeyboardEvent) => {
         const newVal = +ev.key;
@@ -115,6 +137,26 @@ const App = () => {
         newNode.setValue(newX, newY, originalVal);
 
         dispatcher(newNode);
+
+    }
+
+    const handleArrowNavigation = (ev: KeyboardEvent) => {
+        console.log(path)
+        if (pathRef.current === null) {
+            return;
+        }
+
+        console.log(ev);
+
+        if (ev.key === "ArrowLeft") {
+            const prevNode = pathRef.current.prev();
+            const newNode = new Node(prevNode.copyBoard(), null, 0, "");
+            setStart(newNode);
+        } else if (ev.key === "ArrowRight") {
+            const nextNode = pathRef.current.next();
+            const newNode = new Node(nextNode.copyBoard(), null, 0, "");
+            setStart(newNode);
+        }
 
     }
 
@@ -180,7 +222,7 @@ const App = () => {
             return;
         }
 
-        instance.postMessage({start, end, algorithm})
+        instance.postMessage({ start, end, algorithm })
     }
 
     const walkPath = (direction: string) => {
@@ -198,7 +240,6 @@ const App = () => {
             setStart(newNode);
         }
 
-        document.querySelector(`#step-${path.getPointer()}`)?.scrollIntoView({behavior: "smooth", block: "center"});
     }
 
     const handleStepSelect = (ev: React.MouseEvent<HTMLDivElement>) => {
@@ -210,7 +251,6 @@ const App = () => {
         path.setPointer(newPointer);
         const currentNode = path.getCurrent();
         setStart(new Node(currentNode.copyBoard(), null, 0, ""));
-        document.querySelector(`#step-${path.getPointer()}`)?.scrollIntoView({behavior: "smooth", block: "center"});
     }
 
     const handleAlgorithmSelection = (ev: SelectChangeEvent<unknown>) => {
@@ -225,9 +265,9 @@ const App = () => {
         setSelectedCell(null);
     }
 
-    const openEditDialog = (ev: MouseEvent<HTMLButtonElement>) => {
+    const openEditDialog = (ev: MouseEvent<HTMLElement>) => {
         setOpen(true);
-        if ((ev.target as HTMLButtonElement).id.includes("start")) {
+        if ((ev.target as HTMLElement).id.includes("start")) {
             setSelectedBoardType("start");
         } else {
             setSelectedBoardType("end");
@@ -239,7 +279,7 @@ const App = () => {
     }
     const saveEditDialog = (input: string) => {
         setOpen(false);
-        if (input.length !== 9 || [...input].some((val) => isNaN(+val))) {
+        if (input.length !== 9 || [...input].some((val) => isNaN(+val)) || !Node.isValid(input)) {
             return;
         }
 
@@ -261,6 +301,7 @@ const App = () => {
         console.log("Stopped");
     }
 
+
     return (
         <div className="App">
             <Wrapper>
@@ -270,14 +311,17 @@ const App = () => {
                             boardType={"start"}
                             data={start.board}
                             cellMoveHandler={handleCellMove}
-                            cellSelectHandler={handleCellSelect}/>
+                            cellSelectHandler={handleCellSelect} />
                     </BoardWraper>
+                    <div className={"shuffle"} onClick={generateStart}>
+                        <CasinoIcon/>
+                    </div>
                     <BoardWraper title={"end"} openDialog={openEditDialog}>
                         <Board
                             boardType={"end"}
                             data={end.board}
                             cellMoveHandler={handleCellMove}
-                            cellSelectHandler={handleCellSelect}/>
+                            cellSelectHandler={handleCellSelect} />
                     </BoardWraper>
                 </div>
                 <Dashboard
@@ -292,9 +336,9 @@ const App = () => {
                 <Steps
                     path={path}
                     handleSelect={handleStepSelect}
-                    handleWalk={walkPath}/>
+                    handleWalk={walkPath} />
             </Wrapper>
-            <EditDialog open={open} handleClose={closeEditDialog} handleSave={saveEditDialog}/>
+            <EditDialog open={open} handleClose={closeEditDialog} handleSave={saveEditDialog} />
         </div>
     );
 

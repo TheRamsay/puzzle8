@@ -12,7 +12,7 @@ self.onmessage = (message) => {
 
     const startTime = Date.now();
     const solver = new solverClass(start, end);
-    const [node, explored] = solver.solve();
+    const [node, explored, generated] = solver.solve();
     const elapsedTime = (Date.now() - startTime) / 1000;
-    postMessage({node, explored, elapsedTime});
+    postMessage({node, explored, generated, elapsedTime});
 };

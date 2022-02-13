@@ -133,6 +133,23 @@ export default class Node {
         return score;
     }
 
+
+    getCost(goal: Node) {
+        const h = this.getManhattanDistance(goal);
+        const g = this.depth;
+        return g + h;
+    }
+
+    display() {
+        this.board.forEach((row) => {
+            let temp = ""
+            row.forEach((val) => {
+                temp += `${val} `;
+            });
+            console.log(temp);
+        })
+    }
+
     public static fromString(input: string, depth: number, parent: Node | null = null): Node {
 
         if (input.length !== 9) {
@@ -163,20 +180,16 @@ export default class Node {
 
     }
 
-    getCost(goal: Node) {
-        const h = this.getManhattanDistance(goal);
-        const g = this.depth;
-        return g + h;
-    }
-
-    display() {
-        this.board.forEach((row) => {
-            let temp = ""
-            row.forEach((val) => {
-                temp += `${val} `;
-            });
-            console.log(temp);
-        })
+    public static isValid(_board: string): boolean {
+        const occ: Set<number> = new Set();
+        for (const _val of [..._board]) {
+            const val = Number(_val);
+            if (occ.has(val)) {
+                return false;
+            }
+            occ.add(val)
+        }
+        return true;
     }
 
 }

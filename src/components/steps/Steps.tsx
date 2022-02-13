@@ -29,8 +29,8 @@ const Steps: React.FC<StepsProps> = ({path, handleWalk, handleSelect}) => {
                     </div>
                 </div>
                 <div className={"controls"}>
-                    <Button onClick={() => handleWalk("backward")}>{"<<"}</Button>
-                    <Button onClick={() => handleWalk("forward")}>{">>"}</Button>
+                    <Button id="step-back" onClick={() => handleWalk("backward")}>{"<<"}</Button>
+                    <Button id="step-forward" onClick={() => handleWalk("forward")}>{">>"}</Button>
                 </div>
             </BoxWrapper>
         </div>

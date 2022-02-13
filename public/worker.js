@@ -2030,122 +2030,6 @@
     }
   });
 
-  // src/models/Solver.ts
-  var Solver = class {
-    start;
-    end;
-    stop;
-    constructor(start, end) {
-      this.start = start;
-      this.end = end;
-      this.stop = false;
-    }
-    printPath(end) {
-      let count = 0;
-      this.getPath(end).forEach((node) => {
-        console.log(JSON.stringify(node.board));
-        count++;
-      });
-      console.log(`Length of path is ${count - 1}`);
-    }
-    getPath(end) {
-      const path = [];
-      while (end.parent !== null) {
-        path.push(end);
-        end = end.parent;
-      }
-      path.push(end);
-      return path.reverse();
-    }
-    exit() {
-      this.stop = true;
-    }
-  };
-
-  // src/models/BFSSolver.ts
-  var BFSSolver = class extends Solver {
-    constructor(start, end) {
-      super(start, end);
-    }
-    solve() {
-      console.log("Solving with BFS");
-      const queue = [];
-      queue.push(this.start);
-      const visited = /* @__PURE__ */ new Set();
-      while (queue.length !== 0) {
-        const node = queue.shift();
-        if (this.stop) {
-          return [null, -1];
-        }
-        if (!node) {
-          continue;
-        }
-        visited.add(node.toString());
-        if (node.isSame(this.end)) {
-          return [node, visited.size];
-        }
-        const [x, y] = node.find(0);
-        node.getChildren(x, y).forEach(([ox, oy, direction]) => {
-          const newNode = node.createChild(direction);
-          newNode.setValue(x, y, node.getValue(ox, oy));
-          newNode.setValue(ox, oy, 0);
-          if (visited.has(newNode.toString())) {
-            return;
-          }
-          queue.push(newNode);
-        });
-      }
-      return [null, -1];
-    }
-  };
-
-  // src/models/AStarSolver.ts
-  var import_typescript_collections = __toESM(require_lib());
-  var AStarSolver = class extends Solver {
-    constructor(start, end) {
-      super(start, end);
-    }
-    solve() {
-      console.log("Solving with A*");
-      const q = new import_typescript_collections.PriorityQueue((a, b) => {
-        if (a.getCost(this.end) < b.getCost(this.end)) {
-          return 1;
-        }
-        if (a.getCost(this.end) > b.getCost(this.end)) {
-          return -1;
-        }
-        return 0;
-      });
-      const closed = /* @__PURE__ */ new Set();
-      q.add(this.start);
-      while (q.size() !== 0) {
-        const node = q.dequeue();
-        if (this.stop) {
-          return [null, -1];
-        }
-        if (!node) {
-          continue;
-        }
-        if (node.isSame(this.end)) {
-          console.log("Found goal, exiting");
-          return [node, closed.size];
-        }
-        const [x, y] = node.find(0);
-        node.getChildren(x, y).forEach(([ox, oy, direction]) => {
-          const newNode = node.createChild(direction);
-          newNode.setValue(x, y, node.getValue(ox, oy));
-          newNode.setValue(ox, oy, 0);
-          if (closed.has(newNode.toString())) {
-            return;
-          }
-          q.add(newNode);
-        });
-        closed.add(node.toString());
-      }
-      return [null, -1];
-    }
-  };
-
   // src/models/Node.ts
   var Node = class {
     board;
@@ -2210,6 +2094,9 @@
         return arr.slice();
       });
     }
+    copyNode() {
+      return new Node(this.copyBoard(), this.parent, this.depth, this.direction);
+    }
     isSolvable(goal) {
       let inversions = 0;
       const flatten = this.board.flat();
@@ -2245,6 +2132,20 @@
       });
       return score;
     }
+    getCost(goal) {
+      const h = this.getManhattanDistance(goal);
+      const g = this.depth;
+      return g + h;
+    }
+    display() {
+      this.board.forEach((row) => {
+        let temp = "";
+        row.forEach((val) => {
+          temp += `${val} `;
+        });
+        console.log(temp);
+      });
+    }
     static fromString(input, depth, parent = null) {
       if (input.length !== 9) {
         throw new Error("Input length has to be 9 characters");
@@ -2267,19 +2168,151 @@
       }
       return new Node(payload.board, Node.fromObject(payload.parent), payload.depth, payload.direction);
     }
-    getCost(goal) {
-      const h = this.getManhattanDistance(goal);
-      const g = this.depth;
-      return g + h;
+    static isValid(_board) {
+      const occ = /* @__PURE__ */ new Set();
+      for (const _val of [..._board]) {
+        const val = Number(_val);
+        if (occ.has(val)) {
+          return false;
+        }
+        occ.add(val);
+      }
+      return true;
     }
-    display() {
-      this.board.forEach((row) => {
-        let temp = "";
-        row.forEach((val) => {
-          temp += `${val} `;
-        });
-        console.log(temp);
+  };
+
+  // src/models/Solver.ts
+  var Solver = class {
+    start;
+    end;
+    generated;
+    constructor(start, end) {
+      this.start = start;
+      this.end = end;
+      this.generated = 0;
+    }
+    printPath(end) {
+      let count = 0;
+      this.getPath(end).forEach((node) => {
+        console.log(JSON.stringify(node.board));
+        count++;
       });
+      console.log(`Length of path is ${count - 1}`);
+    }
+    getPath(end) {
+      const path = [];
+      while (end.parent !== null) {
+        path.push(end);
+        end = end.parent;
+      }
+      path.push(end);
+      return path.reverse();
+    }
+    static generateProblem(goal) {
+      let currentNode = goal;
+      const n = Math.floor(Math.random() * 30);
+      const buffer = [];
+      for (let i = 0; i < 20; i++) {
+        const [x, y] = currentNode.find(0);
+        const moves = goal.getChildren(x, y);
+        let idx = Math.floor(Math.random() * moves.length);
+        let [ox, oy, _] = moves[idx];
+        moves.splice(idx, 1);
+        while (buffer.some(([bx, by]) => bx === ox && by === oy) && moves.length > 0) {
+          idx = Math.floor(Math.random() * moves.length);
+          [ox, oy, _] = moves[idx];
+          moves.splice(idx, 1);
+        }
+        buffer.push([ox, oy]);
+        if (buffer.length > 4) {
+          buffer.shift();
+        }
+        const _node = new Node(currentNode.copyBoard(), null, 0, "");
+        _node.setValue(x, y, currentNode.getValue(ox, oy));
+        _node.setValue(ox, oy, 0);
+        currentNode = _node;
+      }
+      return currentNode;
+    }
+  };
+
+  // src/models/BFSSolver.ts
+  var BFSSolver = class extends Solver {
+    constructor(start, end) {
+      super(start, end);
+    }
+    solve() {
+      console.log("Solving with BFS");
+      const queue = [];
+      queue.push(this.start);
+      const visited = /* @__PURE__ */ new Set();
+      while (queue.length !== 0) {
+        const node = queue.shift();
+        if (!node) {
+          continue;
+        }
+        visited.add(node.toString());
+        if (node.isSame(this.end)) {
+          return [node, visited.size, this.generated];
+        }
+        const [x, y] = node.find(0);
+        node.getChildren(x, y).forEach(([ox, oy, direction]) => {
+          this.generated++;
+          const newNode = node.createChild(direction);
+          newNode.setValue(x, y, node.getValue(ox, oy));
+          newNode.setValue(ox, oy, 0);
+          if (visited.has(newNode.toString())) {
+            return;
+          }
+          queue.push(newNode);
+        });
+      }
+      return [null, -1, -1];
+    }
+  };
+
+  // src/models/AStarSolver.ts
+  var import_typescript_collections = __toESM(require_lib());
+  var AStarSolver = class extends Solver {
+    constructor(start, end) {
+      super(start, end);
+    }
+    solve() {
+      console.log("Solving with A*");
+      const q = new import_typescript_collections.PriorityQueue((a, b) => {
+        if (a.getCost(this.end) < b.getCost(this.end)) {
+          return 1;
+        }
+        if (a.getCost(this.end) > b.getCost(this.end)) {
+          return -1;
+        }
+        return 0;
+      });
+      const closed = /* @__PURE__ */ new Set();
+      q.add(this.start);
+      while (q.size() !== 0) {
+        const node = q.dequeue();
+        if (!node) {
+          continue;
+        }
+        if (node.isSame(this.end)) {
+          console.log("Found goal, exiting");
+          return [node, closed.size, this.generated];
+        }
+        const [x, y] = node.find(0);
+        node.getChildren(x, y).forEach(([ox, oy, direction]) => {
+          this.generated++;
+          const newNode = node.createChild(direction);
+          newNode.setValue(x, y, node.getValue(ox, oy));
+          newNode.setValue(ox, oy, 0);
+          if (closed.has(newNode.toString())) {
+            return;
+          }
+          q.add(newNode);
+        });
+        closed.add(node.toString());
+      }
+      return [null, -1, -1];
     }
   };
 
@@ -2291,8 +2324,8 @@
     end = Node.fromObject(end);
     const startTime = Date.now();
     const solver = new solverClass(start, end);
-    const [node, explored] = solver.solve();
+    const [node, explored, generated] = solver.solve();
     const elapsedTime = (Date.now() - startTime) / 1e3;
-    postMessage({ node, explored, elapsedTime });
+    postMessage({ node, explored, generated, elapsedTime });
   };
 })();
