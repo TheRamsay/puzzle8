@@ -1,17 +1,15 @@
 import {BoardArray} from "../types";
 
-export default class Node {
+class Node {
     board: BoardArray;
     parent: Node | null;
     depth: number
-    // id: number
     direction: string
 
     constructor(board: BoardArray, parent: Node | null, depth: number, direction: string) {
         this.board = board;
         this.parent = parent;
         this.depth = depth;
-        // this.id = id;
         this.direction = direction
     }
 
@@ -193,3 +191,6 @@ export default class Node {
     }
 
 }
+
+
+export default Node;

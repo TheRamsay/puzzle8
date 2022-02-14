@@ -4,19 +4,15 @@ import BFSSolver from "../models/BFSSolver";
 import AStarSolver from "../models/AStarSolver";
 import Node from "../models/Node";
 import Board from "./board/Board";
-import { BoardArray } from "../types";
-import { getHashes } from "crypto";
 import Dashboard from "./Dashboard";
 import { BoardWraper, Wrapper } from "./Layout";
 import { PathBuilder } from '../models/PathBuilder';
 import { useReferredState } from '../hooks';
-import { DiagnosticCategory } from 'typescript';
 import { Button, SelectChangeEvent } from '@mui/material';
 import Solver from '../models/Solver';
 import EditDialog from "./EditDialog";
 import Results, { ResultsProps } from "./Results";
 import Steps from "./steps/Steps";
-import CasinoIcon from '@mui/icons-material/Casino';
 
 const App = () => {
     const [start, startRef, setStart] = useReferredState<Node>(new Node([
@@ -39,8 +35,6 @@ const App = () => {
     const [selectedCell, selectedCellRef, setSelectedCell] = useReferredState<string | null>(null);
     const [algorithm, setAlgorithm] = useState<string>("astar");
     const [instance, setInstance] = useState(new Worker("/worker.js"));
-
-    // const algoMap: Map<string, BFSSolver | AStarSolver> = new Map([["bfs", BFSSolver], ["astar", AStarSolver]])
 
     useEffect(() => {
         const handler = (ev: KeyboardEvent) => {
@@ -313,9 +307,6 @@ const App = () => {
                             cellMoveHandler={handleCellMove}
                             cellSelectHandler={handleCellSelect} />
                     </BoardWraper>
-                    <div className={"shuffle"} onClick={generateStart}>
-                        <CasinoIcon/>
-                    </div>
                     <BoardWraper title={"end"} openDialog={openEditDialog}>
                         <Board
                             boardType={"end"}
