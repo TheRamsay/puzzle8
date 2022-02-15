@@ -134,9 +134,10 @@ html, body {
 }
 
 .dashboard {
-    display: grid;
-    grid-template: repeat(3, 0.33fr)/ repeat(2, 0.5fr);
-    padding: 10px;
+    padding: 0 10px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
 }
 
 .dashboard-wrapper {
@@ -147,13 +148,12 @@ html, body {
     min-width: 320px;
 }
 
-.dashboard-btn {
+.dashboard-controls {
     display: flex;
-    justify-content: start;
-    align-items: center;
+    flex-direction: column;
 }
 
-.dashboard-btn > button {
+.dashboard-box> button {
     margin-right: 15px;
 }
 
@@ -161,6 +161,7 @@ html, body {
     display: flex;
     justify-content: start;
     align-items: center;
+    margin: 8px 0;
 }
 
 .dashboard-box > p {

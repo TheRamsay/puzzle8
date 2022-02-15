@@ -1,6 +1,6 @@
 import React from "react";
 
-export type ResultsProps = { time: number, explored: number, length: number};
+export type ResultsProps = { time: number, explored: number, length: number, generated: number};
 
 const Results: React.FC<ResultsProps> = ({time, explored, length}) => {
 

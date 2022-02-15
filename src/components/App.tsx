@@ -65,7 +65,7 @@ const App = () => {
                 }
 
                 setPath(p);
-                setResults({ time: elapsedTime, explored: explored, length: p.size() })
+                setResults({ time: elapsedTime, explored: explored, length: p.size(), generated })
                 console.log("Elapsed time: " + elapsedTime + " seconds");
                 console.log("Unique nodes explored: " + explored);
                 console.log("Nodes generated: " + generated);
@@ -318,10 +318,12 @@ const App = () => {
                 <Dashboard
                     handleSolve={solveBoard}
                     handleStop={handleStop}
+                    generate={generateStart}
                     handleAlgoSelect={handleAlgorithmSelection}
                     solvable={solvable}
                     executionTime={results ? results.time : 0}
                     explored={results ? results.explored : 0}
+                    generated={results ? results.generated: 0}
                     pathLength={results ? results.length - 1 : 0}
                 />
                 <Steps

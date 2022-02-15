@@ -5,9 +5,11 @@ import {BoxWrapper} from "./Layout";
 type DashboardProps = {
     handleSolve: () => void,
     handleStop: () => void,
+    generate: () => void,
     handleAlgoSelect: (event: SelectChangeEvent<unknown>) => void,
     solvable: boolean,
     explored: number,
+    generated: number,
     pathLength: number,
     executionTime: number,
 };
@@ -15,11 +17,13 @@ type DashboardProps = {
 const Dashboard: React.FC<DashboardProps> = ({
                                                  handleSolve,
                                                  handleStop,
+                                                 generate,
                                                  handleAlgoSelect,
                                                  solvable,
                                                  executionTime,
                                                  pathLength,
-                                                 explored
+                                                 explored,
+                                                 generated
                                              }) => {
 
     const [value, setValue] = useState("astar");
@@ -32,58 +36,70 @@ const Dashboard: React.FC<DashboardProps> = ({
         <div className={"dashboard-wrapper"}>
             <BoxWrapper>
                 <div className={"dashboard"}>
+                    <div className={"dashboard-controls"}>
+                        <div className={"dashboard-box"}>
+                            <p>algorithm: </p>
+                            <Select
+                                label="Age"
+                                onChange={(ev) => {
+                                    handleAlgoSelect(ev);
+                                    handleChange(ev)
+                                }}
+                                value={value}
+                                color={"secondary"}
+                                sx={{"background-color": "#282C34", color: "#979494"}}
+                                MenuProps={{
+                                    PaperProps: {
+                                        sx: {
+                                            bgcolor: "#282C34",
+                                            '& .MuiMenuItem-root': {
+                                                padding: 2,
+                                            },
+                                            "*": {
+                                                outline: "none",
+                                                border: "none",
+                                            }
 
-                    <div className={"dashboard-box"}>
-                        <p>algorithm: </p>
-                        <Select
-                            label="Age"
-                            onChange={(ev) => {
-                                handleAlgoSelect(ev);
-                                handleChange(ev)
-                            }}
-                            value={value}
-                            color={"secondary"}
-                            sx={{"background-color": "#282C34", color: "#979494"}}
-                            MenuProps={{
-                                PaperProps: {
-                                    sx: {
-                                        bgcolor: "#282C34",
-                                        '& .MuiMenuItem-root': {
-                                            padding: 2,
                                         },
-                                        "*": {
-                                            outline: "none",
-                                            border: "none",
-                                        }
-
                                     },
-                                },
-                            }}
-                        >
-                            <MenuItem value={"bfs"}>BFS</MenuItem>
-                            <MenuItem value={"astar"}>A*</MenuItem>
-                        </Select>
+                                }}
+                            >
+                                <MenuItem value={"bfs"}>BFS</MenuItem>
+                                <MenuItem value={"astar"}>A*</MenuItem>
+                            </Select>
+                        </div>
+                        <div className={"dashboard-box"}>
+                            <p>is solvable: </p>
+                            <p className={solvable ? "solvable" : "unsolvable"}> {solvable + ""}</p>
+                        </div>
+                        <div className={"dashboard-box dashboard-btn"}>
+                            <Button variant="contained" onClick={generate}>generate</Button>
+                        </div>
+                        <div className={"dashboard-box dashboard-btn"}>
+                            <Button variant="contained" onClick={handleSolve}>solve</Button>
+                            <Button variant="contained" onClick={handleStop}>stop</Button>
+                        </div>
                     </div>
-                    <div className={"dashboard-box"}>
-                        <p>nodes explored: </p>
-                        <p> {explored + " nodes"}</p>
+
+                    <div className={"dashboard-info"}>
+                        <div className={"dashboard-box"}>
+                            <p>nodes explored: </p>
+                            <p> {explored + " nodes"}</p>
+                        </div>
+                        <div className={"dashboard-box"}>
+                            <p>nodes generated: </p>
+                            <p> {generated + " nodes"}</p>
+                        </div>
+                        <div className={"dashboard-box"}>
+                            <p>path length: </p>
+                            <p> {pathLength + " nodes"}</p>
+                        </div>
+                        <div className={"dashboard-box"}>
+                            <p>execution time: </p>
+                            <p> {executionTime + " seconds"}</p>
+                        </div>
                     </div>
-                    <div className={"dashboard-box"}>
-                        <p>is solvable: </p>
-                        <p className={solvable ? "solvable" : "unsolvable"}> {solvable + ""}</p>
-                    </div>
-                    <div className={"dashboard-box"}>
-                        <p>path length: </p>
-                        <p> {pathLength + " nodes"}</p>
-                    </div>
-                    <div className={"dashboard-btn"}>
-                        <Button variant="contained" onClick={handleSolve}>solve</Button>
-                        <Button variant="contained" onClick={handleStop}>stop</Button>
-                    </div>
-                    <div className={"dashboard-box"}>
-                        <p>execution time: </p>
-                        <p> {executionTime + " seconds"}</p>
-                    </div>
+
                 </div>
             </BoxWrapper>
         </div>

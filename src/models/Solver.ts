@@ -36,11 +36,24 @@ export default abstract class Solver {
         return path.reverse();
     }
 
-    public static generateProblem(goal: Node): Node {
+    public static shuffleArray(arr: Array<number>): Array<number> {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            const temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
+        }
+        return arr
+    }
+
+    public static generateProblem(): Node {
+        // Create random goal
+        const goal  =
+
         let currentNode = goal;
         const n = Math.floor(Math.random() * 30);
         const buffer: Array<[number, number]> = []
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < n; i++) {
             const [x, y] = currentNode.find(0);
             const moves = goal.getChildren(x, y);
             let idx = Math.floor(Math.random() * moves.length)
