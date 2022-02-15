@@ -88,8 +88,11 @@ const App = () => {
 
 
     const generateStart = () => {
-        const node = Solver.generateProblem(end);
-        setStart(node);
+        const [start, end] = Solver.generateProblem();
+        console.log(start);
+        console.log(end);
+        setStart(start);
+        setEnd(end);
     }
 
     const handleKeyPress = (ev: KeyboardEvent) => {

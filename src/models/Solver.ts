@@ -1,4 +1,5 @@
 import Node from "./Node";
+import { shuffleArray } from "./utils";
 
 export default abstract class Solver {
 
@@ -36,24 +37,26 @@ export default abstract class Solver {
         return path.reverse();
     }
 
-    public static shuffleArray(arr: Array<number>): Array<number> {
-        for (let i = arr.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            const temp = arr[i];
-            arr[i] = arr[j];
-            arr[j] = temp;
-        }
-        return arr
-    }
-
-    public static generateProblem(): Node {
+    public static generateProblem(): Array<Node> {
         // Create random goal
-        const goal  =
+        const _goalBoard = shuffleArray([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+        const goalBoard: Array<Array<number>> = [];
+        let temp: Array<number> = [];
+        [..._goalBoard].forEach((el: number, idx) => {
+            if (idx !== 0 && idx % 3 === 0) {
+                goalBoard.push(temp);
+                temp = [];
+            }
+            temp.push(el)
+        })
+        goalBoard.push(temp)
+
+        const goal = new Node(goalBoard, null, -1, "");
 
         let currentNode = goal;
         const n = Math.floor(Math.random() * 30);
         const buffer: Array<[number, number]> = []
-        for (let i = 0; i < n; i++) {
+        for (let i = 0; i < 29; i++) {
             const [x, y] = currentNode.find(0);
             const moves = goal.getChildren(x, y);
             let idx = Math.floor(Math.random() * moves.length)
@@ -74,7 +77,7 @@ export default abstract class Solver {
             currentNode = _node;
         }
 
-        return currentNode;
+        return [currentNode, goal];
     }
 
 }
