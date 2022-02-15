@@ -1,5 +1,6 @@
 {
     "name": "puzzle8",
+    "homepage": "https://theramsay.github.io",
     "version": "0.1.0",
     "private": true,
     "dependencies": {
@@ -16,9 +17,11 @@
         "@types/react-dom": "^17.0.11",
         "double-ended-queue": "^2.1.0-0",
         "esbuild": "^0.14.21",
+        "gh-pages": "^3.2.3",
         "react": "^17.0.2",
         "react-dom": "^17.0.2",
         "react-scripts": "5.0.0",
+        "save-dev": "^0.0.1-security",
         "ts-loader": "^9.2.6",
         "typescript": "^4.5.5",
         "typescript-collections": "^1.3.3",
@@ -30,7 +33,9 @@
         "build": "react-scripts build",
         "test": "react-scripts test",
         "eject": "react-scripts eject",
-        "worker": "esbuild ./src/worker.ts --bundle --outfile=/public/worker.js"
+        "worker": "esbuild ./src/worker.ts --bundle --outfile=/public/worker.js",
+        "predeploy": "npm run build",
+        "deploy": "gh-pages -d build"
     },
     "eslintConfig": {
         "extends": [
