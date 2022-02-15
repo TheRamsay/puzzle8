@@ -1,6 +1,6 @@
 import Node from "./Node";
 import Solver from "./Solver";
-import { PriorityQueue } from "typescript-collections";
+import {PriorityQueue} from "typescript-collections";
 
 export default class AStarSolver extends Solver {
 

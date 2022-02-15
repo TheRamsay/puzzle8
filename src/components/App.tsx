@@ -38,7 +38,6 @@ const App = () => {
 
     useEffect(() => {
         const handler = (ev: KeyboardEvent) => {
-            console.log(ev.key);
             if (ev.key.includes("Arrow")) {
                 handleArrowNavigation(ev);
             } else {

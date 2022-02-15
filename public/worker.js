@@ -21,6 +21,231 @@
     return __reExport(__markAsModule(__defProp(module != null ? __create(__getProtoOf(module)) : {}, "default", !isNodeMode && module && module.__esModule ? { get: () => module.default, enumerable: true } : { value: module, enumerable: true })), module);
   };
 
+  // node_modules/double-ended-queue/js/deque.js
+  var require_deque = __commonJS({
+    "node_modules/double-ended-queue/js/deque.js"(exports, module) {
+      "use strict";
+      function Deque2(capacity) {
+        this._capacity = getCapacity(capacity);
+        this._length = 0;
+        this._front = 0;
+        if (isArray(capacity)) {
+          var len = capacity.length;
+          for (var i = 0; i < len; ++i) {
+            this[i] = capacity[i];
+          }
+          this._length = len;
+        }
+      }
+      Deque2.prototype.toArray = function Deque$toArray() {
+        var len = this._length;
+        var ret = new Array(len);
+        var front = this._front;
+        var capacity = this._capacity;
+        for (var j = 0; j < len; ++j) {
+          ret[j] = this[front + j & capacity - 1];
+        }
+        return ret;
+      };
+      Deque2.prototype.push = function Deque$push(item) {
+        var argsLength = arguments.length;
+        var length = this._length;
+        if (argsLength > 1) {
+          var capacity = this._capacity;
+          if (length + argsLength > capacity) {
+            for (var i = 0; i < argsLength; ++i) {
+              this._checkCapacity(length + 1);
+              var j = this._front + length & this._capacity - 1;
+              this[j] = arguments[i];
+              length++;
+              this._length = length;
+            }
+            return length;
+          } else {
+            var j = this._front;
+            for (var i = 0; i < argsLength; ++i) {
+              this[j + length & capacity - 1] = arguments[i];
+              j++;
+            }
+            this._length = length + argsLength;
+            return length + argsLength;
+          }
+        }
+        if (argsLength === 0)
+          return length;
+        this._checkCapacity(length + 1);
+        var i = this._front + length & this._capacity - 1;
+        this[i] = item;
+        this._length = length + 1;
+        return length + 1;
+      };
+      Deque2.prototype.pop = function Deque$pop() {
+        var length = this._length;
+        if (length === 0) {
+          return void 0;
+        }
+        var i = this._front + length - 1 & this._capacity - 1;
+        var ret = this[i];
+        this[i] = void 0;
+        this._length = length - 1;
+        return ret;
+      };
+      Deque2.prototype.shift = function Deque$shift() {
+        var length = this._length;
+        if (length === 0) {
+          return void 0;
+        }
+        var front = this._front;
+        var ret = this[front];
+        this[front] = void 0;
+        this._front = front + 1 & this._capacity - 1;
+        this._length = length - 1;
+        return ret;
+      };
+      Deque2.prototype.unshift = function Deque$unshift(item) {
+        var length = this._length;
+        var argsLength = arguments.length;
+        if (argsLength > 1) {
+          var capacity = this._capacity;
+          if (length + argsLength > capacity) {
+            for (var i = argsLength - 1; i >= 0; i--) {
+              this._checkCapacity(length + 1);
+              var capacity = this._capacity;
+              var j = (this._front - 1 & capacity - 1 ^ capacity) - capacity;
+              this[j] = arguments[i];
+              length++;
+              this._length = length;
+              this._front = j;
+            }
+            return length;
+          } else {
+            var front = this._front;
+            for (var i = argsLength - 1; i >= 0; i--) {
+              var j = (front - 1 & capacity - 1 ^ capacity) - capacity;
+              this[j] = arguments[i];
+              front = j;
+            }
+            this._front = front;
+            this._length = length + argsLength;
+            return length + argsLength;
+          }
+        }
+        if (argsLength === 0)
+          return length;
+        this._checkCapacity(length + 1);
+        var capacity = this._capacity;
+        var i = (this._front - 1 & capacity - 1 ^ capacity) - capacity;
+        this[i] = item;
+        this._length = length + 1;
+        this._front = i;
+        return length + 1;
+      };
+      Deque2.prototype.peekBack = function Deque$peekBack() {
+        var length = this._length;
+        if (length === 0) {
+          return void 0;
+        }
+        var index = this._front + length - 1 & this._capacity - 1;
+        return this[index];
+      };
+      Deque2.prototype.peekFront = function Deque$peekFront() {
+        if (this._length === 0) {
+          return void 0;
+        }
+        return this[this._front];
+      };
+      Deque2.prototype.get = function Deque$get(index) {
+        var i = index;
+        if (i !== (i | 0)) {
+          return void 0;
+        }
+        var len = this._length;
+        if (i < 0) {
+          i = i + len;
+        }
+        if (i < 0 || i >= len) {
+          return void 0;
+        }
+        return this[this._front + i & this._capacity - 1];
+      };
+      Deque2.prototype.isEmpty = function Deque$isEmpty() {
+        return this._length === 0;
+      };
+      Deque2.prototype.clear = function Deque$clear() {
+        var len = this._length;
+        var front = this._front;
+        var capacity = this._capacity;
+        for (var j = 0; j < len; ++j) {
+          this[front + j & capacity - 1] = void 0;
+        }
+        this._length = 0;
+        this._front = 0;
+      };
+      Deque2.prototype.toString = function Deque$toString() {
+        return this.toArray().toString();
+      };
+      Deque2.prototype.valueOf = Deque2.prototype.toString;
+      Deque2.prototype.removeFront = Deque2.prototype.shift;
+      Deque2.prototype.removeBack = Deque2.prototype.pop;
+      Deque2.prototype.insertFront = Deque2.prototype.unshift;
+      Deque2.prototype.insertBack = Deque2.prototype.push;
+      Deque2.prototype.enqueue = Deque2.prototype.push;
+      Deque2.prototype.dequeue = Deque2.prototype.shift;
+      Deque2.prototype.toJSON = Deque2.prototype.toArray;
+      Object.defineProperty(Deque2.prototype, "length", {
+        get: function() {
+          return this._length;
+        },
+        set: function() {
+          throw new RangeError("");
+        }
+      });
+      Deque2.prototype._checkCapacity = function Deque$_checkCapacity(size) {
+        if (this._capacity < size) {
+          this._resizeTo(getCapacity(this._capacity * 1.5 + 16));
+        }
+      };
+      Deque2.prototype._resizeTo = function Deque$_resizeTo(capacity) {
+        var oldCapacity = this._capacity;
+        this._capacity = capacity;
+        var front = this._front;
+        var length = this._length;
+        if (front + length > oldCapacity) {
+          var moveItemsCount = front + length & oldCapacity - 1;
+          arrayMove(this, 0, this, oldCapacity, moveItemsCount);
+        }
+      };
+      var isArray = Array.isArray;
+      function arrayMove(src, srcIndex, dst, dstIndex, len) {
+        for (var j = 0; j < len; ++j) {
+          dst[j + dstIndex] = src[j + srcIndex];
+          src[j + srcIndex] = void 0;
+        }
+      }
+      function pow2AtLeast(n) {
+        n = n >>> 0;
+        n = n - 1;
+        n = n | n >> 1;
+        n = n | n >> 2;
+        n = n | n >> 4;
+        n = n | n >> 8;
+        n = n | n >> 16;
+        return n + 1;
+      }
+      function getCapacity(capacity) {
+        if (typeof capacity !== "number") {
+          if (isArray(capacity)) {
+            capacity = capacity.length;
+          } else {
+            return 16;
+          }
+        }
+        return pow2AtLeast(Math.min(Math.max(16, capacity), 1073741824));
+      }
+      module.exports = Deque2;
+    }
+  });
+
   // node_modules/typescript-collections/dist/lib/util.js
   var require_util = __commonJS({
     "node_modules/typescript-collections/dist/lib/util.js"(exports) {
@@ -2180,6 +2405,18 @@
       return true;
     }
   };
+  var Node_default = Node;
+
+  // src/models/utils.ts
+  var shuffleArray = (arr) => {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const temp = arr[i];
+      arr[i] = arr[j];
+      arr[j] = temp;
+    }
+    return arr;
+  };
 
   // src/models/Solver.ts
   var Solver = class {
@@ -2208,11 +2445,23 @@
       path.push(end);
       return path.reverse();
     }
-    static generateProblem(goal) {
+    static generateProblem() {
+      const _goalBoard = shuffleArray([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+      const goalBoard = [];
+      let temp = [];
+      [..._goalBoard].forEach((el, idx) => {
+        if (idx !== 0 && idx % 3 === 0) {
+          goalBoard.push(temp);
+          temp = [];
+        }
+        temp.push(el);
+      });
+      goalBoard.push(temp);
+      const goal = new Node_default(goalBoard, null, -1, "");
       let currentNode = goal;
-      const n = Math.floor(Math.random() * 30);
+      const n = Math.floor(Math.random() * (40 - 15) + 15);
       const buffer = [];
-      for (let i = 0; i < 20; i++) {
+      for (let i = 0; i < n; i++) {
         const [x, y] = currentNode.find(0);
         const moves = goal.getChildren(x, y);
         let idx = Math.floor(Math.random() * moves.length);
@@ -2227,23 +2476,24 @@
         if (buffer.length > 4) {
           buffer.shift();
         }
-        const _node = new Node(currentNode.copyBoard(), null, 0, "");
+        const _node = new Node_default(currentNode.copyBoard(), null, 0, "");
         _node.setValue(x, y, currentNode.getValue(ox, oy));
         _node.setValue(ox, oy, 0);
         currentNode = _node;
       }
-      return currentNode;
+      return [currentNode, goal];
     }
   };
 
   // src/models/BFSSolver.ts
+  var import_double_ended_queue = __toESM(require_deque());
   var BFSSolver = class extends Solver {
     constructor(start, end) {
       super(start, end);
     }
     solve() {
       console.log("Solving with BFS");
-      const queue = [];
+      const queue = new import_double_ended_queue.default();
       queue.push(this.start);
       const visited = /* @__PURE__ */ new Set();
       while (queue.length !== 0) {
@@ -2320,8 +2570,8 @@
   self.onmessage = (message) => {
     let { data: { start, end, algorithm } } = message;
     const solverClass = algorithm === "astar" ? AStarSolver : BFSSolver;
-    start = Node.fromObject(start);
-    end = Node.fromObject(end);
+    start = Node_default.fromObject(start);
+    end = Node_default.fromObject(end);
     const startTime = Date.now();
     const solver = new solverClass(start, end);
     const [node, explored, generated] = solver.solve();

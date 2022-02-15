@@ -1,5 +1,5 @@
 import Node from "./Node";
-import { shuffleArray } from "./utils";
+import {shuffleArray} from "./utils";
 
 export default abstract class Solver {
 
@@ -54,9 +54,9 @@ export default abstract class Solver {
         const goal = new Node(goalBoard, null, -1, "");
 
         let currentNode = goal;
-        const n = Math.floor(Math.random() * 30);
+        const n = Math.floor(Math.random() * (40 - 15) + 15);
         const buffer: Array<[number, number]> = []
-        for (let i = 0; i < 29; i++) {
+        for (let i = 0; i < n; i++) {
             const [x, y] = currentNode.find(0);
             const moves = goal.getChildren(x, y);
             let idx = Math.floor(Math.random() * moves.length)

@@ -1,5 +1,6 @@
 import Node from "./Node";
 import Solver from "./Solver";
+import Deque from "double-ended-queue";
 
 export default class BFSSolver extends Solver {
 
@@ -9,7 +10,7 @@ export default class BFSSolver extends Solver {
 
     solve(): [Node | null, number, number] {
         console.log("Solving with BFS");
-        const queue: Array<Node> = [];
+        const queue: Deque<Node> = new Deque();
         queue.push(this.start);
         const visited: Set<string> = new Set();
 
