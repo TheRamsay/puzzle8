@@ -153,6 +153,10 @@ html, body {
     flex-direction: column;
 }
 
+.dashboard-info {
+    width: 50%
+}
+
 .dashboard-box> button {
     margin-right: 15px;
 }

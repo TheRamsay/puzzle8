@@ -53,6 +53,7 @@ const App = () => {
 
     useEffect(() => {
         instance.onmessage = (event: MessageEvent) => {
+            setRunning(false);
             let {node, explored, generated, elapsedTime} = event.data;
             if (node) {
                 node = Node.fromObject(node);
@@ -221,7 +222,6 @@ const App = () => {
 
         setRunning(true);
         instance.postMessage({start, end, algorithm})
-        setRunning(false);
     }
 
     const walkPath = (direction: string) => {
