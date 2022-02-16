@@ -1,32 +1,46 @@
-import React, {MouseEvent, useEffect, useRef, useState} from 'react';
+import React, { MouseEvent, useEffect, useRef, useState } from 'react';
 import './App.css';
 import BFSSolver from "../models/BFSSolver";
 import AStarSolver from "../models/AStarSolver";
 import Node from "../models/Node";
 import Board from "./board/Board";
 import Dashboard from "./Dashboard";
-import {BoardWraper, Wrapper} from "./Layout";
-import {PathBuilder} from '../models/PathBuilder';
-import {useReferredState} from '../hooks';
-import {Button, SelectChangeEvent} from '@mui/material';
+import { BoardWraper, Wrapper } from "./Layout";
+import { PathBuilder } from '../models/PathBuilder';
+import { useReferredState } from '../hooks';
+import { Button, SelectChangeEvent } from '@mui/material';
 import Solver from '../models/Solver';
 import EditDialog from "./EditDialog";
-import Results, {ResultsProps} from "./Results";
+import Results, { ResultsProps } from "./Results";
 import Steps from "./steps/Steps";
+import {add} from "rust-lib";
 
 const App = () => {
     const [start, startRef, setStart] = useReferredState<Node>(new Node([
-        [8, 6, 7],
-        [2, 5, 4],
-        [3, 0, 1]
+        [9, 2, 8, 11],
+        [0, 5, 13, 7],
+        [15, 1, 4, 10],
+        [3, 14, 6, 12],
     ], null, 0, ""));
 
     const [end, endRef, setEnd] = useReferredState<Node>(new Node([
-        [1, 2, 3],
-        [4, 5, 6],
-        [7, 8, 0]
+        [1, 2, 3, 4],
+        [5, 6, 7, 8],
+        [9, 10, 11, 12],
+        [0, 13, 14, 15],
     ], null, -1, ""));
 
+    // const [start, startRef, setStart] = useReferredState<Node>(new Node([
+    //     [8, 6, 7],
+    //     [2, 5, 4],
+    //     [3, 0, 1]
+    // ], null, 0, ""));
+
+    // const [end, endRef, setEnd] = useReferredState<Node>(new Node([
+    //     [1, 2, 3],
+    //     [4, 5, 6],
+    //     [7, 8, 0]
+    // ], null, -1, ""));
     const [path, pathRef, setPath] = useReferredState<PathBuilder | null>(null);
     const [results, setResults] = useState<ResultsProps | null>(null);
     const [open, setOpen] = useState(false);
@@ -52,9 +66,13 @@ const App = () => {
     }, [])
 
     useEffect(() => {
+        console.log(add(3, 4));
+    }, [])
+
+    useEffect(() => {
         instance.onmessage = (event: MessageEvent) => {
             setRunning(false);
-            let {node, explored, generated, elapsedTime} = event.data;
+            let { node, explored, generated, elapsedTime } = event.data;
             if (node) {
                 node = Node.fromObject(node);
                 const solver = algorithm === "astar" ? new AStarSolver(start, end) : new BFSSolver(start, end);
@@ -66,7 +84,7 @@ const App = () => {
                 }
 
                 setPath(p);
-                setResults({time: elapsedTime, explored: explored, length: p.size(), generated})
+                setResults({ time: elapsedTime, explored: explored, length: p.size(), generated })
                 console.log("Elapsed time: " + elapsedTime + " seconds");
                 console.log("Unique nodes explored: " + explored);
                 console.log("Nodes generated: " + generated);
@@ -83,15 +101,16 @@ const App = () => {
 
     useEffect(() => {
         if (path) {
-            document.querySelector(`#step-${path.getPointer()}`)?.scrollIntoView({behavior: "smooth", block: "center"});
+            document.querySelector(`#step-${path.getPointer()}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
         }
     }, [start])
 
 
     const generateStart = () => {
+        if (running) {
+            return;
+        }
         const [start, end] = Solver.generateProblem();
-        console.log(start);
-        console.log(end);
         setStart(start);
         setEnd(end);
     }
@@ -221,7 +240,7 @@ const App = () => {
         }
 
         setRunning(true);
-        instance.postMessage({start, end, algorithm})
+        instance.postMessage({ start, end, algorithm })
     }
 
     const walkPath = (direction: string) => {
@@ -296,8 +315,8 @@ const App = () => {
 
     const handleStop = () => {
         instance.terminate();
-        setInstance(new Worker("/worker.js"));
-        console.log("Stopped");
+        setInstance(new Worker(process.env.PUBLIC_URL + "/worker.js"));
+        setRunning(false);
     }
 
 
@@ -310,14 +329,14 @@ const App = () => {
                             boardType={"start"}
                             data={start.board}
                             cellMoveHandler={handleCellMove}
-                            cellSelectHandler={handleCellSelect}/>
+                            cellSelectHandler={handleCellSelect} />
                     </BoardWraper>
                     <BoardWraper title={"end"} openDialog={openEditDialog}>
                         <Board
                             boardType={"end"}
                             data={end.board}
                             cellMoveHandler={handleCellMove}
-                            cellSelectHandler={handleCellSelect}/>
+                            cellSelectHandler={handleCellSelect} />
                     </BoardWraper>
                 </div>
                 <Dashboard
@@ -335,9 +354,9 @@ const App = () => {
                 <Steps
                     path={path}
                     handleSelect={handleStepSelect}
-                    handleWalk={walkPath}/>
+                    handleWalk={walkPath} />
             </Wrapper>
-            <EditDialog open={open} handleClose={closeEditDialog} handleSave={saveEditDialog}/>
+            <EditDialog open={open} handleClose={closeEditDialog} handleSave={saveEditDialog} />
         </div>
     );
 
