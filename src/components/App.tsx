@@ -35,6 +35,7 @@ const App = () => {
     const [selectedCell, selectedCellRef, setSelectedCell] = useReferredState<string | null>(null);
     const [algorithm, setAlgorithm] = useState<string>("astar");
     const [instance, setInstance] = useState(new Worker(process.env.PUBLIC_URL + "/worker.js"));
+    const [running, setRunning] = useState(false);
 
     useEffect(() => {
         const handler = (ev: KeyboardEvent) => {
@@ -218,7 +219,9 @@ const App = () => {
             return;
         }
 
+        setRunning(true);
         instance.postMessage({start, end, algorithm})
+        setRunning(false);
     }
 
     const walkPath = (direction: string) => {
@@ -327,6 +330,7 @@ const App = () => {
                     explored={results ? results.explored : 0}
                     generated={results ? results.generated : 0}
                     pathLength={results ? results.length - 1 : 0}
+                    running={running}
                 />
                 <Steps
                     path={path}

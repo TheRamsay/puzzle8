@@ -1,4 +1,4 @@
-import {Button, MenuItem, Select, SelectChangeEvent} from "@mui/material";
+import {Button, CircularProgress, MenuItem, Select, SelectChangeEvent} from "@mui/material";
 import React, {PointerEvent, ChangeEvent, useState} from "react";
 import {BoxWrapper} from "./Layout";
 
@@ -12,6 +12,7 @@ type DashboardProps = {
     generated: number,
     pathLength: number,
     executionTime: number,
+    running: boolean
 };
 
 const Dashboard: React.FC<DashboardProps> = ({
@@ -23,7 +24,8 @@ const Dashboard: React.FC<DashboardProps> = ({
                                                  executionTime,
                                                  pathLength,
                                                  explored,
-                                                 generated
+                                                 generated,
+                                                 running
                                              }) => {
 
     const [value, setValue] = useState("astar");
@@ -82,22 +84,11 @@ const Dashboard: React.FC<DashboardProps> = ({
                     </div>
 
                     <div className={"dashboard-info"}>
-                        <div className={"dashboard-box"}>
-                            <p>nodes explored: </p>
-                            <p> {explored + " nodes"}</p>
-                        </div>
-                        <div className={"dashboard-box"}>
-                            <p>nodes generated: </p>
-                            <p> {generated + " nodes"}</p>
-                        </div>
-                        <div className={"dashboard-box"}>
-                            <p>path length: </p>
-                            <p> {pathLength + " nodes"}</p>
-                        </div>
-                        <div className={"dashboard-box"}>
-                            <p>execution time: </p>
-                            <p> {executionTime + " seconds"}</p>
-                        </div>
+                        <Info
+                            explored={explored}
+                            pathLength={pathLength}
+                            executionTime={executionTime}
+                            generated={generated}/>
                     </div>
 
                 </div>
@@ -105,5 +96,35 @@ const Dashboard: React.FC<DashboardProps> = ({
         </div>
     )
 }
+
+type InfoProps = {
+    explored: number,
+    generated: number,
+    pathLength: number,
+    executionTime: number,
+};
+const Info: React.FC<InfoProps> = ({explored, generated, pathLength, executionTime}) => {
+    return (
+        <>
+            <div className={"dashboard-box"}>
+                <p>nodes explored: </p>
+                <p> {explored + " nodes"}</p>
+            </div>
+            <div className={"dashboard-box"}>
+                <p>nodes generated: </p>
+                <p> {generated + " nodes"}</p>
+            </div>
+            <div className={"dashboard-box"}>
+                <p>path length: </p>
+                <p> {pathLength + " nodes"}</p>
+            </div>
+            <div className={"dashboard-box"}>
+                <p>execution time: </p>
+                <p> {executionTime + " seconds"}</p>
+            </div>
+        </>
+    )
+}
+
 
 export default Dashboard
