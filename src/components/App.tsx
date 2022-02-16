@@ -1,17 +1,17 @@
-import React, { MouseEvent, useEffect, useRef, useState } from 'react';
+import React, {MouseEvent, useEffect, useRef, useState} from 'react';
 import './App.css';
 import BFSSolver from "../models/BFSSolver";
 import AStarSolver from "../models/AStarSolver";
 import Node from "../models/Node";
 import Board from "./board/Board";
 import Dashboard from "./Dashboard";
-import { BoardWraper, Wrapper } from "./Layout";
-import { PathBuilder } from '../models/PathBuilder';
-import { useReferredState } from '../hooks';
-import { Button, SelectChangeEvent } from '@mui/material';
+import {BoardWraper, Wrapper} from "./Layout";
+import {PathBuilder} from '../models/PathBuilder';
+import {useReferredState} from '../hooks';
+import {Button, SelectChangeEvent} from '@mui/material';
 import Solver from '../models/Solver';
 import EditDialog from "./EditDialog";
-import Results, { ResultsProps } from "./Results";
+import Results, {ResultsProps} from "./Results";
 import Steps from "./steps/Steps";
 
 const App = () => {
@@ -34,7 +34,7 @@ const App = () => {
     const [selectedBoardType, setSelectedBoardType] = useState<string | null>(null);
     const [selectedCell, selectedCellRef, setSelectedCell] = useReferredState<string | null>(null);
     const [algorithm, setAlgorithm] = useState<string>("astar");
-    const [instance, setInstance] = useState(new Worker("/worker.js"));
+    const [instance, setInstance] = useState(new Worker(process.env.PUBLIC_URL + "/worker.js"));
 
     useEffect(() => {
         const handler = (ev: KeyboardEvent) => {
@@ -52,7 +52,7 @@ const App = () => {
 
     useEffect(() => {
         instance.onmessage = (event: MessageEvent) => {
-            let { node, explored, generated, elapsedTime } = event.data;
+            let {node, explored, generated, elapsedTime} = event.data;
             if (node) {
                 node = Node.fromObject(node);
                 const solver = algorithm === "astar" ? new AStarSolver(start, end) : new BFSSolver(start, end);
@@ -64,7 +64,7 @@ const App = () => {
                 }
 
                 setPath(p);
-                setResults({ time: elapsedTime, explored: explored, length: p.size(), generated })
+                setResults({time: elapsedTime, explored: explored, length: p.size(), generated})
                 console.log("Elapsed time: " + elapsedTime + " seconds");
                 console.log("Unique nodes explored: " + explored);
                 console.log("Nodes generated: " + generated);
@@ -81,7 +81,7 @@ const App = () => {
 
     useEffect(() => {
         if (path) {
-            document.querySelector(`#step-${path.getPointer()}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+            document.querySelector(`#step-${path.getPointer()}`)?.scrollIntoView({behavior: "smooth", block: "center"});
         }
     }, [start])
 
@@ -218,7 +218,7 @@ const App = () => {
             return;
         }
 
-        instance.postMessage({ start, end, algorithm })
+        instance.postMessage({start, end, algorithm})
     }
 
     const walkPath = (direction: string) => {
@@ -307,14 +307,14 @@ const App = () => {
                             boardType={"start"}
                             data={start.board}
                             cellMoveHandler={handleCellMove}
-                            cellSelectHandler={handleCellSelect} />
+                            cellSelectHandler={handleCellSelect}/>
                     </BoardWraper>
                     <BoardWraper title={"end"} openDialog={openEditDialog}>
                         <Board
                             boardType={"end"}
                             data={end.board}
                             cellMoveHandler={handleCellMove}
-                            cellSelectHandler={handleCellSelect} />
+                            cellSelectHandler={handleCellSelect}/>
                     </BoardWraper>
                 </div>
                 <Dashboard
@@ -325,15 +325,15 @@ const App = () => {
                     solvable={solvable}
                     executionTime={results ? results.time : 0}
                     explored={results ? results.explored : 0}
-                    generated={results ? results.generated: 0}
+                    generated={results ? results.generated : 0}
                     pathLength={results ? results.length - 1 : 0}
                 />
                 <Steps
                     path={path}
                     handleSelect={handleStepSelect}
-                    handleWalk={walkPath} />
+                    handleWalk={walkPath}/>
             </Wrapper>
-            <EditDialog open={open} handleClose={closeEditDialog} handleSave={saveEditDialog} />
+            <EditDialog open={open} handleClose={closeEditDialog} handleSave={saveEditDialog}/>
         </div>
     );
 
