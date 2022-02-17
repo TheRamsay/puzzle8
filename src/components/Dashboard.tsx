@@ -84,12 +84,12 @@ const Dashboard: React.FC<DashboardProps> = ({
                     </div>
 
                     <div className={"dashboard-info"}>
-                        {running ?  <CircularProgress /> : <Info
+                        {running ? <CircularProgress/> : <Info
                             explored={explored}
                             pathLength={pathLength}
                             executionTime={executionTime}
                             generated={generated}/>
-    }
+                        }
                     </div>
 
                 </div>

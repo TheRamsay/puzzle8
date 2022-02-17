@@ -15,6 +15,7 @@
         "@types/jest": "^27.4.0",
         "@types/react": "^17.0.38",
         "@types/react-dom": "^17.0.11",
+        "denque": "^2.0.1",
         "double-ended-queue": "^2.1.0-0",
         "esbuild": "^0.14.21",
         "gh-pages": "^3.2.3",

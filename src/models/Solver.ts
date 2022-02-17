@@ -1,6 +1,5 @@
 import Node from "./Node";
 import {shuffleArray} from "./utils";
-import {add} from "../../rust-lib/pkg/rust_lib.js"
 
 export default abstract class Solver {
 
@@ -8,7 +7,7 @@ export default abstract class Solver {
     end: Node;
     generated: number;
 
-    constructor(start: Node, end: Node) {
+    protected constructor(start: Node, end: Node) {
         this.start = start;
         this.end = end;
         this.generated = 0;
@@ -39,12 +38,11 @@ export default abstract class Solver {
     }
 
     public static generateProblem(): Array<Node> {
-        // Create random goal
-        const _goalBoard = shuffleArray([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
+        const _goalBoard = shuffleArray([0, 1, 2, 3, 4, 5, 6, 7, 8]);
         const goalBoard: Array<Array<number>> = [];
         let temp: Array<number> = [];
         [..._goalBoard].forEach((el: number, idx) => {
-            if (idx !== 0 && idx % 4 === 0) {
+            if (idx !== 0 && idx % 3 === 0) {
                 goalBoard.push(temp);
                 temp = [];
             }
@@ -57,7 +55,7 @@ export default abstract class Solver {
         let currentNode = goal;
         const n = Math.floor(Math.random() * (40 - 15) + 15);
         const buffer: Array<[number, number]> = []
-        for (let i = 0; i < 60; i++) {
+        for (let i = 0; i < n; i++) {
             const [x, y] = currentNode.find(0);
             const moves = goal.getChildren(x, y);
             let idx = Math.floor(Math.random() * moves.length)

@@ -1,8 +1,8 @@
 .steps-list-wrapper {
     display: flex;
     width: 95%;
-    max-height: 50vh;
-    min-height: 50vh;
+    max-height: 60vh;
+    min-height: 60vh;
 }
 
 .steps-list {

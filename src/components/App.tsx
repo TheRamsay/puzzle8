@@ -1,54 +1,44 @@
-import React, { MouseEvent, useEffect, useRef, useState } from 'react';
-import './App.css';
+import React, {MouseEvent, useEffect, useRef, useState} from "react";
+import "./App.css";
 import BFSSolver from "../models/BFSSolver";
 import AStarSolver from "../models/AStarSolver";
 import Node from "../models/Node";
 import Board from "./board/Board";
 import Dashboard from "./Dashboard";
-import { BoardWraper, Wrapper } from "./Layout";
-import { PathBuilder } from '../models/PathBuilder';
-import { useReferredState } from '../hooks';
-import { Button, SelectChangeEvent } from '@mui/material';
-import Solver from '../models/Solver';
+import {BoardWraper, Wrapper} from "./Layout";
+import {PathBuilder} from "../models/PathBuilder";
+import {useReferredState} from "../hooks";
+import {Button, SelectChangeEvent} from "@mui/material";
+import Solver from "../models/Solver";
 import EditDialog from "./EditDialog";
-import Results, { ResultsProps } from "./Results";
+import {ResultsProps} from "./Results";
 import Steps from "./steps/Steps";
-import {add} from "rust-lib";
 
 const App = () => {
     const [start, startRef, setStart] = useReferredState<Node>(new Node([
-        [9, 2, 8, 11],
-        [0, 5, 13, 7],
-        [15, 1, 4, 10],
-        [3, 14, 6, 12],
+        [8, 6, 7],
+        [2, 5, 4],
+        [3, 0, 1]
     ], null, 0, ""));
 
     const [end, endRef, setEnd] = useReferredState<Node>(new Node([
-        [1, 2, 3, 4],
-        [5, 6, 7, 8],
-        [9, 10, 11, 12],
-        [0, 13, 14, 15],
+        [1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 0]
     ], null, -1, ""));
 
-    // const [start, startRef, setStart] = useReferredState<Node>(new Node([
-    //     [8, 6, 7],
-    //     [2, 5, 4],
-    //     [3, 0, 1]
-    // ], null, 0, ""));
-
-    // const [end, endRef, setEnd] = useReferredState<Node>(new Node([
-    //     [1, 2, 3],
-    //     [4, 5, 6],
-    //     [7, 8, 0]
-    // ], null, -1, ""));
     const [path, pathRef, setPath] = useReferredState<PathBuilder | null>(null);
     const [results, setResults] = useState<ResultsProps | null>(null);
     const [open, setOpen] = useState(false);
     const [solvable, setSolvable] = useState(false);
-    const [selectedBoardType, setSelectedBoardType] = useState<string | null>(null);
+    const [selectedBoardType, setSelectedBoardType] = useState<string | null>(
+        null
+    );
     const [selectedCell, selectedCellRef, setSelectedCell] = useReferredState<string | null>(null);
     const [algorithm, setAlgorithm] = useState<string>("astar");
-    const [instance, setInstance] = useState(new Worker(process.env.PUBLIC_URL + "/worker.js"));
+    const [instance, setInstance] = useState(
+        new Worker(process.env.PUBLIC_URL + "/worker.js")
+    );
     const [running, setRunning] = useState(false);
 
     useEffect(() => {
@@ -58,24 +48,24 @@ const App = () => {
             } else {
                 handleKeyPress(ev);
             }
-        }
+        };
 
-        window.addEventListener("keydown", handler)
+        window.addEventListener("keydown", handler);
 
         return () => window.removeEventListener("keydown", handler);
-    }, [])
+    }, []);
 
-    useEffect(() => {
-        console.log(add(3, 4));
-    }, [])
 
     useEffect(() => {
         instance.onmessage = (event: MessageEvent) => {
             setRunning(false);
-            let { node, explored, generated, elapsedTime } = event.data;
+            let {node, explored, generated, elapsedTime} = event.data;
             if (node) {
                 node = Node.fromObject(node);
-                const solver = algorithm === "astar" ? new AStarSolver(start, end) : new BFSSolver(start, end);
+                const solver =
+                    algorithm === "astar"
+                        ? new AStarSolver(start, end)
+                        : new BFSSolver(start, end);
 
                 solver.printPath(node);
                 const p = new PathBuilder(solver.getPath(node));
@@ -84,27 +74,32 @@ const App = () => {
                 }
 
                 setPath(p);
-                setResults({ time: elapsedTime, explored: explored, length: p.size(), generated })
+                setResults({
+                    time: elapsedTime,
+                    explored: explored,
+                    length: p.size(),
+                    generated,
+                });
                 console.log("Elapsed time: " + elapsedTime + " seconds");
                 console.log("Unique nodes explored: " + explored);
                 console.log("Nodes generated: " + generated);
             } else {
                 throw new Error("Path not found");
             }
-        }
-    }, [instance])
-
+        };
+    }, [instance]);
 
     useEffect(() => {
-        setSolvable(start.isSolvable(end))
-    }, [start, end])
+        setSolvable(start.isSolvable(end));
+    }, [start, end]);
 
     useEffect(() => {
         if (path) {
-            document.querySelector(`#step-${path.getPointer()}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+            document
+                .querySelector(`#step-${path.getPointer()}`)
+                ?.scrollIntoView({behavior: "smooth", block: "center"});
         }
-    }, [start])
-
+    }, [start]);
 
     const generateStart = () => {
         if (running) {
@@ -113,12 +108,17 @@ const App = () => {
         const [start, end] = Solver.generateProblem();
         setStart(start);
         setEnd(end);
-    }
+    };
 
     const handleKeyPress = (ev: KeyboardEvent) => {
         const newVal = +ev.key;
 
-        if (!selectedCellRef.current || isNaN(newVal) || newVal > 8 || newVal < 0) {
+        if (
+            !selectedCellRef.current ||
+            isNaN(newVal) ||
+            newVal > 8 ||
+            newVal < 0
+        ) {
             return;
         }
 
@@ -129,9 +129,9 @@ const App = () => {
         switch (boardType) {
             case "start":
                 originalNode = startRef.current;
-                depth = 0
+                depth = 0;
                 dispatcher = setStart;
-                break
+                break;
 
             case "end":
                 originalNode = endRef.current;
@@ -141,7 +141,6 @@ const App = () => {
 
             default:
                 throw Error("No board type selected");
-
         }
         const newBoard = originalNode.copyBoard();
         const [x, y] = [Number(_x), Number(_y)];
@@ -154,11 +153,10 @@ const App = () => {
         newNode.setValue(newX, newY, originalVal);
 
         dispatcher(newNode);
-
-    }
+    };
 
     const handleArrowNavigation = (ev: KeyboardEvent) => {
-        console.log(path)
+        console.log(path);
         if (pathRef.current === null) {
             return;
         }
@@ -174,8 +172,7 @@ const App = () => {
             const newNode = new Node(nextNode.copyBoard(), null, 0, "");
             setStart(newNode);
         }
-
-    }
+    };
 
     const handleCellSelect = (ev: MouseEvent<HTMLElement>) => {
         ev.preventDefault();
@@ -194,10 +191,10 @@ const App = () => {
                 setSelectedCell(target.id);
             }
         }
-    }
+    };
 
     const handleCellMove = (ev: MouseEvent<HTMLElement>) => {
-        const target = (ev.target) as HTMLDivElement;
+        const target = ev.target as HTMLDivElement;
 
         const [_x, _y, boardType] = target.id.split("-");
         const board = boardType === "start" ? start.copyNode() : end.copyNode();
@@ -205,9 +202,11 @@ const App = () => {
         const newX = Number(_x);
         const newY = Number(_y);
 
-        if (!board.getChildren(...board.find(0)).some(([ox, oy, dir]) => {
-            return newX === ox && newY === oy;
-        })) {
+        if (
+            !board.getChildren(...board.find(0)).some(([ox, oy, dir]) => {
+                return newX === ox && newY === oy;
+            })
+        ) {
             return;
         }
 
@@ -217,10 +216,8 @@ const App = () => {
         board.setValue(newX, newY, 0);
 
         const dispatcher = boardType === "start" ? setStart : setEnd;
-        dispatcher(board)
-
-
-    }
+        dispatcher(board);
+    };
 
     const solveBoard = () => {
         if (!algorithm) {
@@ -240,8 +237,8 @@ const App = () => {
         }
 
         setRunning(true);
-        instance.postMessage({ start, end, algorithm })
-    }
+        instance.postMessage({start, end, algorithm});
+    };
 
     const walkPath = (direction: string) => {
         if (!path) {
@@ -257,31 +254,32 @@ const App = () => {
             const newNode = new Node(prevNode.copyBoard(), null, 0, "");
             setStart(newNode);
         }
-
-    }
+    };
 
     const handleStepSelect = (ev: React.MouseEvent<HTMLDivElement>) => {
         if (!path) {
             return;
         }
 
-        const newPointer = Number((ev.currentTarget as HTMLDivElement).id.split("-")[1]);
+        const newPointer = Number(
+            (ev.currentTarget as HTMLDivElement).id.split("-")[1]
+        );
         path.setPointer(newPointer);
         const currentNode = path.getCurrent();
         setStart(new Node(currentNode.copyBoard(), null, 0, ""));
-    }
+    };
 
     const handleAlgorithmSelection = (ev: SelectChangeEvent<unknown>) => {
         setAlgorithm((ev.target as HTMLSelectElement).value);
-    }
+    };
 
     const clearSelectedElements = () => {
         const elements = document.getElementsByClassName("selected");
         [...elements].forEach((el) => {
             el.classList.remove("selected");
-        })
+        });
         setSelectedCell(null);
-    }
+    };
 
     const openEditDialog = (ev: MouseEvent<HTMLElement>) => {
         setOpen(true);
@@ -290,14 +288,18 @@ const App = () => {
         } else {
             setSelectedBoardType("end");
         }
-    }
+    };
     const closeEditDialog = () => {
         setOpen(false);
         setSelectedBoardType(null);
-    }
+    };
     const saveEditDialog = (input: string) => {
         setOpen(false);
-        if (input.length !== 9 || [...input].some((val) => isNaN(+val)) || !Node.isValid(input)) {
+        if (
+            input.length !== 9 ||
+            [...input].some((val) => isNaN(+val)) ||
+            !Node.isValid(input)
+        ) {
             return;
         }
 
@@ -310,15 +312,13 @@ const App = () => {
 
         dispatch(Node.fromString(input, depth));
         setSelectedBoardType(null);
-
-    }
+    };
 
     const handleStop = () => {
         instance.terminate();
         setInstance(new Worker(process.env.PUBLIC_URL + "/worker.js"));
         setRunning(false);
-    }
-
+    };
 
     return (
         <div className="App">
@@ -329,14 +329,16 @@ const App = () => {
                             boardType={"start"}
                             data={start.board}
                             cellMoveHandler={handleCellMove}
-                            cellSelectHandler={handleCellSelect} />
+                            cellSelectHandler={handleCellSelect}
+                        />
                     </BoardWraper>
                     <BoardWraper title={"end"} openDialog={openEditDialog}>
                         <Board
                             boardType={"end"}
                             data={end.board}
                             cellMoveHandler={handleCellMove}
-                            cellSelectHandler={handleCellSelect} />
+                            cellSelectHandler={handleCellSelect}
+                        />
                     </BoardWraper>
                 </div>
                 <Dashboard
@@ -354,13 +356,16 @@ const App = () => {
                 <Steps
                     path={path}
                     handleSelect={handleStepSelect}
-                    handleWalk={walkPath} />
+                    handleWalk={walkPath}
+                />
             </Wrapper>
-            <EditDialog open={open} handleClose={closeEditDialog} handleSave={saveEditDialog} />
+            <EditDialog
+                open={open}
+                handleClose={closeEditDialog}
+                handleSave={saveEditDialog}
+            />
         </div>
     );
-
-}
-
+};
 
 export default App;
